@@ -84,7 +84,7 @@ class SignUp extends Component {
 
               <div>
                   <button className="">New Account</button>
-                  <Link to="/login" className="FormField__Link">If you already have an account, please Signin</Link>
+                  <Link to="/" className="FormField__Link">If you already have an account, please Signin</Link>
               </div>
             </form>
           </div>

@@ -11,7 +11,7 @@ function App() {
   return (
     //LIST OF ROUTES
     <Router>
-      <Route path="/login" component={Login}>
+      <Route exact path="/" component={Login}>
       </Route>
       <Route path="/signup" component={SignUp}>
       </Route>
