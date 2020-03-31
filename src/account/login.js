@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Axios from 'axios';
 
 class Login extends Component {
     constructor() {
@@ -26,14 +27,35 @@ class Login extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-
-        console.log('The form was submitted with the following data:');
+        
+        console.log('The form was submitted with:');
         console.log(this.state);
+
+        //LOGIN RETURNS TOKEN
+        Axios.post(
+            'https://kf6-stage.rit.albany.edu/auth/local',
+            this.state)
+            .then((response)=>{
+                console.log(response.data.token);
+                this.token= response.data.token;
+                
+                //SET TOKEN
+                sessionStorage.setItem('token',this.token);
+                //NAVIGATE TO HOME TEMP
+                this.props.history.push("/home");
+            })
+            .catch((error)=>{
+                if(error.message){
+                    console.log(error.message);
+                }
+            }
+
+            );
     }
 
     render() {
         return (
-        <div className="FormCenter">
+        <div className="mrg-1">
             <form onSubmit={this.handleSubmit}>
             <div>
                 <label htmlFor="userName">Username</label>
