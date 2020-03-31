@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+* {
+  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* MARGIN */
+
+.mrg-05 {
+  margin: 0.5rem !important;
+}
+
+.mrg-1 {
+  margin: 1rem !important;
+}
+
+.mrg-2 {
+  margin: 2rem !important;
+}
+
+.mrg-4 {
+  margin: 4rem !important;
+}
+
+.mrg-8 {
+  margin: 8rem !important;
+}
+
+.mrg-16 {
+  margin: 16rem !important;
+}
+
+.mrg-32 {
+  margin: 32rem !important;
+}
+
+.mrg-64 {
+  margin: 64rem !important;
+}
+
+/* PADDING */
+
+.pd-05 {
+  padding: 0.5rem !important;
+}
+
+.pd-1 {
+  padding: 1rem !important;
+}
+
+.pd-2 {
+  padding: 2rem !important;
+}
+
+.pd-4 {
+  padding: 4rem !important;
+}
+
+.pd-8 {
+  padding: 8rem !important;
+}
+
+.pd-16 {
+  padding: 16rem !important;
+}
+
+.pd-32 {
+  padding: 32rem !important;
+}
+
+.pd-64 {
+  padding: 64rem !important;
+}
