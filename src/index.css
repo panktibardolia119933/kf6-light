@@ -44,6 +44,22 @@ body {
   margin: 64rem !important;
 }
 
+.mrg-05-top {
+  margin-top: 0.5rem !important;
+}
+
+.mrg-1-top {
+  margin-top: 1rem !important;
+}
+
+.mrg-2-top {
+  margin-top: 2rem !important;
+}
+
+.mrg-4-top {
+  margin-top: 4rem !important;
+}
+
 /* PADDING */
 
 .pd-05 {

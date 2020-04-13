@@ -1,23 +1,31 @@
 import React from 'react';
 import { HashRouter as Router, Route} from 'react-router-dom';
+
 import Login from './account/login';
 import SignUp from './account/signup';
-import Home from './home';
+import CommunityManager from './communityManager';
+import TopNavbar from './reusable/topNavbar';
+import View from './view/view';
 
 import './App.css';
 
 
+
 function App() {
   return (
-    //LIST OF ROUTES
+    <div>
+    <TopNavbar></TopNavbar>
     <Router>
       <Route exact path="/" component={Login}>
       </Route>
       <Route path="/signup" component={SignUp}>
       </Route>
-      <Route path="/home" component={Home}>
+      <Route path="/community-manager" component={CommunityManager}>
+      </Route>
+      <Route path="/view/:id" component={View}>      
       </Route>
     </Router>
+    </div>
   );
 }
 
