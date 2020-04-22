@@ -34,7 +34,7 @@ class Login extends Component {
 
         //LOGIN RETURNS TOKEN
         Axios.post(
-            'https://kf6-stage.rit.albany.edu/auth/local',
+            'https://kf6-stage.ikit.org/auth/local',
             this.state)
             .then((response)=>{
                 console.log(response.data.token);

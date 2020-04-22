@@ -22,7 +22,7 @@ function App() {
       </Route>
       <Route path="/community-manager" component={CommunityManager}>
       </Route>
-      <Route path="/view/:id" component={View}>      
+      <Route path="/view" component={View}>      
       </Route>
     </Router>
     </div>

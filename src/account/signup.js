@@ -40,7 +40,7 @@ class SignUp extends Component {
         console.log(this.state);
 
         Axios.post(
-            'https://kf6-stage.rit.albany.edu/api/users',
+            'https://kf6-stage.ikit.org/api/users',
             this.state)
             .then((response)=>{
                 console.log(response.data.token);

@@ -52,6 +52,10 @@ body {
   margin-top: 1rem !important;
 }
 
+.mrg-105-top {
+  margin-top: 1.5rem !important;
+}
+
 .mrg-2-top {
   margin-top: 2rem !important;
 }
@@ -92,4 +96,21 @@ body {
 
 .pd-64 {
   padding: 64rem !important;
+}
+
+
+.pd-2-left {
+  padding-left: 2rem !important;
+}
+
+.white {
+  color: azure;
+}
+
+.indigo {
+  color: indigo;
+}
+
+.blue {
+  color: blue;
 }
