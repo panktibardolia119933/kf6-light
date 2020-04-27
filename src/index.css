@@ -64,6 +64,10 @@ body {
   margin-top: 4rem !important;
 }
 
+.mrg-8-top{
+  margin-top: 6rem !important;
+}
+
 /* PADDING */
 
 .pd-05 {
@@ -103,6 +107,10 @@ body {
   padding-left: 2rem !important;
 }
 
+.pd-6-top {
+  padding-top: 6rem !important;
+}
+
 .white {
   color: azure;
 }
@@ -113,4 +121,25 @@ body {
 
 .blue {
   color: blue;
+}
+
+.pink-bg{
+  background-color: palevioletred;
+};
+
+.light-bg{
+  background-color: aqua;
+};
+
+.fix-col-size{
+  max-height: 300px;
+  overflow: auto;
+}
+
+.fix-width{
+  width: 100vw !important;
+}
+
+.visible-1{
+  z-index: 1 !important;
 }

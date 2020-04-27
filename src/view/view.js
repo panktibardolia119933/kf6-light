@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Redirect, Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Container, Row, Col, Modal } from 'react-bootstrap';
+import { DropdownButton, Dropdown, Button, Container, Row, Col, Modal, Nav, NavDropdown, Navbar } from 'react-bootstrap';
+import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
+import Toolbar from '../reusable/toolbar';
 
 class View extends Component {
 
@@ -34,10 +36,16 @@ class View extends Component {
             showContribution: false,
             showNote: false,
             hNotes: [],
+            addView: '',
+            showRiseAbove : false,
+            showModel : false,
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        this.handleSubmitView = this.handleSubmitView.bind(this);
+        this.handleChangeView = this.handleChangeView.bind(this);
     }
     
     
@@ -160,6 +168,45 @@ class View extends Component {
         e.preventDefault();
         console.log('The form was submitted with:');
         console.log(this.state.communitySelect);
+        console.log('ADD view:',this.state.addView);
+    }
+
+    handleChangeView = (e) => {
+        let target = e.target;
+        let name = target.name;
+        let value = target.value;
+
+        this.setState({
+            [name]: value
+        });
+    }
+
+    handleSubmitView(e) {
+        e.preventDefault();
+        var config = {
+            headers: { Authorization: `Bearer ${this.token}` }
+        };        
+        
+        var addViewUrl = "https://kf6-stage.ikit.org/api/contributions/"+this.state.communityId;
+        
+        var query= {"authors":[sessionStorage.getItem("userId")],
+            "communityId":this.state.communityId, 
+            "permission":"public",
+            "status":"active",
+            "title": this.state.addView,
+            "type": "View"}
+        Axios.post(addViewUrl,query,config)
+            .then(
+                result=>{
+                    console.log("Successful",result);
+                    
+                }
+            ).catch(
+                error=>{
+                    console.log(error);
+                    
+                }
+            );
     }
 
     logout(){
@@ -172,15 +219,16 @@ class View extends Component {
             showContribution: true,
             showCommunity: false,
             showView: false,
+            showRiseAbove: false,
         })
     }
 
     newNote(){
         console.log("New Note onclick works");
         this.setState({
-            showCommunity: true,
+            showNote: true,
             showView: false,
-            showContribution : false,
+            showRiseAbove : false,
         })
     }
 
@@ -188,15 +236,25 @@ class View extends Component {
         console.log("New View onclick works"); 
         this.setState({
             showView: true,
-            showCommunity: false,
-            showContribution : false,
-        })        
+            showRiseAbove : false,
+            showNote : false, 
+        })
+        // https://kf6-stage.ikit.org/api/contributions/56947546535c7c0709beee5c        
+    }
+
+    newRiseAbove(){
+        console.log("New RiseAbove onclick works");
+        this.setState({
+            showView: false,
+            showNote : false,
+            showRiseAbove : true,
+        }) 
     }
     
     //HANDLE MODEL
     handleShow(value){
         this.setState({
-            showNote: value,
+            showModel: value,
         });
         
     }
@@ -215,70 +273,89 @@ class View extends Component {
 
     render() {
         return (
-            <div> 
-                <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
-                    <Dropdown.Item onClick={()=>this.newContribution()}>
-                        <Link onClick={()=>this.handleShow(true)}>
-                            Contributions
-                        </Link>
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={()=>this.newView()}>
-                        <Link onClick={()=>this.handleShow(true)}>
-                            Views
-                        </Link>
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={()=>this.newNote()}>
-                        <Link onClick={()=>this.handleShow(true)}>
-                            New Note
-                        </Link>
-                    </Dropdown.Item>
-                </DropdownButton>
+            <>
+               
+                    <Row md="2" lg="2" className="fix-width">
+                        <Col md="1" lg="1" className="pd-6-top sidebar-nav">
+                            {/* <Navbar bg="light" variant="light" className="sideBar">
+                                <Nav>
+                                <NavDropdown variant="outline-info" title={<i class="fas fa-plus-circle"></i>} className="visible-1">
+                                    <NavDropdown.Item onClick={()=>this.newContribution()}>
+                                        <Link onClick={()=>this.handleShow(true)}>
+                                            Contributions
+                                        </Link>
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item onClick={()=>this.newView()}>
+                                        <Link onClick={()=>this.handleShow(true)}>
+                                            Views
+                                        </Link>
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item onClick={()=>this.newNote()}>
+                                        <Link onClick={()=>this.handleShow(true)}>
+                                            New Note
+                                        </Link>
+                                    </NavDropdown.Item>
+                                </NavDropdown>
+                                </Nav>
+                            </Navbar> */}
+                            <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
+                                {/* <Dropdown.Item onClick={()=>this.newContribution()}>
+                                    <Link onClick={()=>this.handleShow(true)}>
+                                        Contributions
+                                    </Link>
+                                </Dropdown.Item> */}
+                                <Dropdown.Item onClick={()=>this.newNote()}>
+                                    <Link onClick={()=>this.handleShow(true)}>
+                                        New Note
+                                    </Link>
+                                </Dropdown.Item>
+
+                                <Dropdown.Item onClick={()=>this.newView()}>
+                                    <Link onClick={()=>this.handleShow(true)}>
+                                        new View
+                                    </Link>
+                                </Dropdown.Item>
+                                
+                                <Dropdown.Item onClick={()=>this.newRiseAbove()}>
+                                    <Link onClick={()=>this.handleShow(true)}>
+                                        New RiseAbove
+                                    </Link>
+                                </Dropdown.Item>
+                            </DropdownButton>
+                            {/* <Toolbar></Toolbar>*/}
+                        </Col> 
                 
-                {/* {this.state.showCommunity ?(
-                    <Container className="mrg-2-top">
-                        <h6>MY Registered Communities</h6>
-                        {this.state.myCommunities.map((obj) => {
-                        return <Row key={obj.id} value={obj.title} className="mrg-05-top">
-                            <Col>Title {obj._community.title}</Col>
-                        </Row>
-                        })}
-                        <h6>communitites</h6>
-                        {this.state.communitites.map((obj) => {
-                            return <Row key={obj.id} value={obj.title} className="mrg-05-top">
-                                <Col>Title {obj.title}</Col>
+                        
+                        <Col md="11" lg="11" className="pd-6-top">
+                       
+                            {this.state.hNotes.map((obj) => {
+                            return <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                <Col className="mr-auto">
+                                    <Row className="indigo"> {obj._to.title}</Row>
+                                    <Row> {obj.to}</Row>
+                                    <Row className="pd-2-left blue"> {obj._from.title}</Row>
+                                    <Row className="pd-2-left"> {obj.from}</Row>
+                                    <hr/>
+                                </Col>
                             </Row>
-                        })}
-                    </Container>
-                    )
-                    :null
-
-                } */}
-
-                {/* {this.state.showView ?(
-                    <Container className="mrg-2-top">
-                        <h6>MY Views</h6>
-                        {this.state.myViews.map((obj) => {
-                        return <Row key={obj.id} value={obj.title} className="mrg-05-top">
-                            <Col> {obj.title} </Col>
-                        </Row>
-                        })}
-                    </Container>
-                    )
-                    :null
-                } */}
-
-                {/* <Container className="mrg-2-top">
-                    <h6>My Knowledge Building Communities</h6>
-                    {this.communityData.map((obj) => {
-                        return <Row key={obj.id} value={obj.communityId} className="mrg-05-top">
-                            <Col>Title {obj}</Col>
-                        </Row>
-                    })}
-                </Container> */}
-
-
+                            })}                            
+                        {this.state.viewLinks.map((obj) => {
+                            return <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                <Col>
+                                <Row className="indigo"> {obj._to.title}</Row>
+                                <Row> {obj.to}</Row>
+                                <hr/>
+                                
+                                </Col>
+                            </Row>
+                            })}
+                            
+                        </Col>
+                        
+                    </Row>
+                
                 {/* MODEL */}
-                <Modal show={this.state.showNote} onHide={()=>this.handleShow(false)}>
+                <Modal show={this.state.showModel} onHide={()=>this.handleShow(false)}>
                     {this.state.showContribution ?(
                     <>
                         <Modal.Header closeButton>
@@ -311,7 +388,28 @@ class View extends Component {
                     {this.state.showView ?(
                     <>
                         <Modal.Header closeButton>
-                        <Modal.Title>Views</Modal.Title>
+                        <Modal.Title>
+                            <Row>
+                            <Col>Views</Col>
+                            </Row>
+                            <Row>
+                            <Col>
+                                <Row>
+                                <Form onSubmit={this.handleSubmitView} className="form">
+                                    <Col>
+                                    <FormGroup>
+                                        <Label htmlFor="addView" style={{fontSize:"1rem"}}>Add View</Label>
+                                        <Input type="text" id="addView" placeholder="Enter View Name" name="addView" value={this.state.addView} onChange={this.handleChangeView} />
+                                    </FormGroup>
+                                    </Col>
+                                    <Col>
+                                        <Button varient="secondary" onClick={this.handleSubmitView}>Add</Button>
+                                    </Col>
+                                </Form>
+                                </Row>
+                            </Col>
+                            </Row>
+                        </Modal.Title>
                         </Modal.Header>
                         <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
                             {this.state.myViews.map((obj) => {
@@ -322,6 +420,39 @@ class View extends Component {
                         </Modal.Body>
                     </>) : null }
 
+                    {this.state.showRiseAbove ?(
+                    <>
+                        <Modal.Header closeButton>
+                        <Modal.Title>
+                            <Row>
+                            <Col>New RiseAbove</Col>
+                            </Row>
+                        </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
+                            <Form onSubmit={this.handleSubmit}>
+                                <Label htmlFor="riseAboveTitle" style={{fontSize:"1rem"}}>RiseAbove Title</Label>
+                                <Input type="text" id="riseAboveTitle" placeholder="Enter RiseAbove Title" name="riseAboveTitle" value={this.state.riseAboveTitle} onChange={this.handleChange} />
+                                
+                                <Button className="mrg-1-top" onClick={this.handleSubmit}>Submit</Button>
+                            </Form>
+                        </Modal.Body>
+                    </>) : null }
+
+                    {this.state.showNote ?(
+                    <>
+                        <Modal.Header closeButton>
+                        <Modal.Title>
+                            <Row>
+                            <Col>New Note</Col>
+                            </Row>
+                        </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
+                            New Note
+                        </Modal.Body>
+                    </>) : null }
+
                     <Modal.Footer>
                     <Button variant="secondary" onClick={()=>this.handleShow(false)}>
                         Close
@@ -329,7 +460,8 @@ class View extends Component {
                     </Modal.Footer>
                 </Modal>
                 
-            </div>
+            
+        </>
         );
     }
 }

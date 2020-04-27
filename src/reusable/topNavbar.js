@@ -114,7 +114,7 @@ class TopNavbar extends Component {
 
     render() {
         return (
-            <Navbar bg="dark" variant="dark">
+            <Navbar bg="dark" variant="dark" fixed="top">
             <Navbar.Brand href="#community-manager">KF6 Light</Navbar.Brand>
             {this.state.loggedIn ? 
             (
