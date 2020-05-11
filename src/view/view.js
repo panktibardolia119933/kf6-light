@@ -180,23 +180,10 @@ class View extends Component {
                     console.log("This.state hNotes",this.state.hNotes);
                     console.log("HIERARCHI",h);
 
+                    this.arrangeFromTo();
 
-                    for(var l in this.from){
-                        var tempTo2=[];
-                        tempTo2.push(this.to[l]);
-                        console.log("YES YES");
-                        
-                        if(this.from.includes(this.to[l])){
-                            console.log("Inside 1st IF", this.to[l]);
-                            
-                            var fromIndex = this.from.findIndex(this.to[l]);
-                            console.log("fromIndex", fromIndex);
-                            this.addTo(fromIndex, tempTo2, l);
-                        }
-                        else{
-                            console.log("MY MEHNAT 1st Else:", this.from, this.to);
-                        }
-                    }
+                    // AFTER ARRANGEFROM IS OVER
+                    //CALL INDIVIDUAL INFO FOR NOTES
 
                     // for(var l in to){
                     //     if(from.includes(to[l])){
@@ -248,10 +235,33 @@ class View extends Component {
 
     }
 
+    arrangeFromTo(){
+        for(var l in this.from){
+            var tempTo2=[];
+            tempTo2.push(this.to[l]);
+            console.log("YES YES");
+            
+            if(this.from.includes(this.to[l])){
+                var toL= this.to[l];
+                console.log("Inside 1st IF", toL);
+                
+                var fromIndex = this.from.indexOf(toL);
+                console.log("fromIndex", fromIndex);
+                this.addTo(fromIndex, tempTo2, l);
+            }
+            else{
+                console.log("MY MEHNAT 1st Else:", this.from, this.to);
+            }
+        }
+        return 0;
+    }
+
     addTo(fromIndex, tempTo, l){
+        console.log("Inside addTo");
+        
         tempTo.push(this.to[fromIndex]);
         this.to[l]= tempTo;
-        console.log("2nd IF to[l]",this.to[l]);
+        console.log("2nd to[l]",this.to[l]);
         
         delete this.from[fromIndex];
         if(this.from.includes(this.to[fromIndex])){
@@ -261,6 +271,7 @@ class View extends Component {
         else{
             console.log("MY MEHNAT 2nd Else:", this.from, this.to);
         }
+        return 0;
     }
 
     handleChange = (e) => {
