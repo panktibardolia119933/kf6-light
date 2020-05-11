@@ -8,6 +8,7 @@ import TopNavbar from './reusable/topNavbar';
 import View from './view/view';
 
 import './App.css';
+import ChangePassword from './account/change-password';
 
 
 
@@ -23,6 +24,8 @@ function App() {
       <Route path="/community-manager" component={CommunityManager}>
       </Route>
       <Route path="/view" component={View}>      
+      </Route>
+      <Route path="/change-password" component={ChangePassword}>      
       </Route>
     </Router>
     </div>

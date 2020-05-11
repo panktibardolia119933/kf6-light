@@ -12,6 +12,9 @@ body {
 
 /* MARGIN */
 
+.mrg-025 {
+  margin: 0.25rem !important;
+}
 .mrg-05 {
   margin: 0.5rem !important;
 }
@@ -136,8 +139,8 @@ body {
   overflow: auto;
 }
 
-.fix-width{
-  width: 100vw !important;
+.min-width{
+  min-width: 400px !important;
 }
 
 .visible-1{

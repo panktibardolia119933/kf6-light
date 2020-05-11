@@ -142,12 +142,14 @@ class TopNavbar extends Component {
             )}
             
             {this.state.loggedIn ? (
-              <span><span className="white"> {this.state.userName} </span>
-              <Button variant="outline-secondary" href="/" onClick={this.logout}>Logout</Button>
-              </span>
+              <>
+                <Nav.Link href="#change-password"><i className="fas fa-cog white"></i></Nav.Link>
+                <span className="white"> {this.state.userName} </span>                
+                <Button variant="outline-secondary" href="/" onClick={this.logout}>Logout</Button>
+              </>
             ):null}
-            
-          </Navbar>
+
+            </Navbar>
         );
     }
 }
