@@ -13,7 +13,11 @@ class View extends Component {
     myCommunityId = '';
     show= false; 
     from = [];
-    to = [];  
+    to = []; 
+    myTempTo = [];
+    hierarchyNote =[];
+    noteData1 = [];
+    noteContnetNew;
     
     //TOKEN
     token = sessionStorage.getItem('token');
@@ -42,6 +46,9 @@ class View extends Component {
             addView: '',
             showRiseAbove : false,
             showModel : false,
+            sFrom : [],
+            sTo : [],
+            showNoteContent: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -143,6 +150,7 @@ class View extends Component {
                             });
                     }
                     console.log("NOTEDATA",noteData);
+                    this.noteData1 = noteData;
                     
         
                 }).catch(
@@ -162,6 +170,7 @@ class View extends Component {
                     this.setState({
                         hNotes: result.data,
                     })
+                    this.hierarchyNote = this.state.hNotes;
                     for(var i in result.data){
                         this.from.push(result.data[i].from);
                         this.to.push(result.data[i].to);
@@ -179,8 +188,62 @@ class View extends Component {
                     }
                     console.log("This.state hNotes",this.state.hNotes);
                     console.log("HIERARCHI",h);
+                    
+                    try {
+                        for(var l in this.to){
+                            if(this.from.includes(this.to[l])){
+                                var index= this.from.indexOf(this.to[l]);
+                                var temporaryTo = [];
+                                var pushObj = this.hierarchyNote[index];
+                                if(this.hierarchyNote[index]){temporaryTo.push(pushObj);}
+                                temporaryTo.push(this.hierarchyNote[l]);
+                                this.hierarchyNote[l] = temporaryTo;
+                                console.log("SHOULD",this.hierarchyNote);
+                                
+                            }
+                        }
+                    } catch (error) {
+                        //Do nothing
+                    }finally{
+                        this.setState({
+                            hNotes : this.hierarchyNote
+                        })
+                        console.log("Finally Hierarcy", this.state.hNotes);
+                        
+                    }
+                    
 
-                    this.arrangeFromTo();
+                    // if(this.arrangeFromTo()){
+                    //     var fromData=[];
+                    //     var toData = [];
+                    //     this.setState({
+                    //         sFrom: this.from,
+                    //         sTo: this.to,
+                    //     });
+
+                    //     for(var m in this.from){
+                    //         if(this.from[m]!=null){                       
+                    //             var noteUrl="https://kf6-stage.ikit.org/api/objects/"+ this.from[m];
+                                
+                    //             Axios.get(noteUrl, config)
+                    //             .then(
+                    //                 result=>{
+                    //                     fromData.push(result.data);
+                    //                 }).catch(
+                    //                     error=>{
+                    //                         // alert(error);
+                    //                 });
+                    //         }
+                            
+                    //     }
+                    //     for(var o in this.from){
+                    //         if(this.from[o]!= null){
+                    //             toData.push(this.to[o]);
+                    //         }
+                    //     }
+                    //     console.log("fromData",fromData);
+                    //     console.log("toData",toData);
+                    // }
 
                     // AFTER ARRANGEFROM IS OVER
                     //CALL INDIVIDUAL INFO FOR NOTES
@@ -253,7 +316,7 @@ class View extends Component {
                 console.log("MY MEHNAT 1st Else:", this.from, this.to);
             }
         }
-        return 0;
+        return 1;
     }
 
     addTo(fromIndex, tempTo, l){
@@ -341,6 +404,7 @@ class View extends Component {
             showCommunity: false,
             showView: false,
             showRiseAbove: false,
+            showNoteContent : false,
         })
     }
 
@@ -350,6 +414,7 @@ class View extends Component {
             showNote: true,
             showView: false,
             showRiseAbove : false,
+            showNoteContent : false,
         })
     }
 
@@ -359,6 +424,7 @@ class View extends Component {
             showView: true,
             showRiseAbove : false,
             showNote : false, 
+            showNoteContent : false,
         })
         // https://kf6-stage.ikit.org/api/contributions/56947546535c7c0709beee5c        
     }
@@ -369,6 +435,7 @@ class View extends Component {
             showView: false,
             showNote : false,
             showRiseAbove : true,
+            showNoteContent : false,
         }) 
     }
     
@@ -379,6 +446,34 @@ class View extends Component {
         });
         
     }
+
+    handleShowNoteContent(value){
+        this.setState({
+            showView: false,
+            showNote : false,
+            showRiseAbove : false,
+            showNoteContent : true,
+        });
+        
+    }
+
+    content(id){
+        var myArray = this.noteData1;
+        for(var i in myArray){
+            if(myArray[i]._id && myArray[i]._id===id){
+                console.log("DATA DATA", myArray[i].data);
+                this.noteContnetNew = myArray[i].data;
+            }
+        }
+        this.handleShow(true);
+        // this.setState({
+        //     showView: false,
+        //     showNote : false,
+        //     showRiseAbove : false,
+        //     showNoteContent : true,
+        // })         
+    }
+
 
     changeView(viewObj){
         console.log("viewId",viewObj.obj._id);
@@ -457,15 +552,36 @@ class View extends Component {
                             {this.state.hNotes.map((obj) => {
                             return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
                                 <Col className="mr-auto">
-                                    {obj._to.title?(<Row className="indigo"> {obj._to.title}</Row>):(<Row>Empty Title</Row>)}                                    
-                                    <Row> Created On {obj._to.created}</Row>
-                                    {obj._from.title?(<Row className="pd-2-left blue"> {obj._from.title}</Row>):(<Row className="pd-2-left blue"> Empty Title</Row>)}                                     
-                                    <Row className="pd-2-left"> Created On {obj._from.created}</Row>
+                                    {obj._to && obj._to.title && obj._to.created ?(<>
+                                        <Row className="indigo"> <Link onClick={()=>this.content(obj.to)}>{obj._to.title}</Link>
+                                        </Row>
+                                        <Row> Created On {obj._to.created}</Row>
+                                        </>)
+                                        :
+                                        // (
+                                        //     obj.map((subObj)=>{
+                                        //         return <Row>
+                                        //             <Col>
+                                        //                 {subObj._to && subObj._to.title && subObj._to.created ?(<>
+                                        //                 <Row className="indigo"> {subObj._to.title}</Row>
+                                        //                 <Row> Created On {subObj._to.created}</Row></>):(<></>)}
+                                        //             </Col>
+                                        //         </Row>
+                                                
+                                        //     })
+                                        // )
+                                        (<></>     
+                                        )}                                    
+                                    
+                                    {obj._from && obj._from.title && obj._to.created ? (<><Row className="pd-2-left blue"> {obj._from.title}</Row><Row className="pd-2-left"> Created On {obj._from.created}</Row></>):(<></>)}                                     
+                                    
                                 </Col>
                             </Row>
-                            })}                            
+                            }
+                            
+                            )}                            
                         {this.state.viewLinks.map((obj) => {
-                            return <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                            return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
                                 <Col>
                                 <Row className="indigo"> {obj._to.title}</Row>
                                 <Row> {obj.to}</Row>
@@ -579,6 +695,19 @@ class View extends Component {
                             New Note
                         </Modal.Body>
                     </>) : null }
+
+
+                    {this.state.showNoteContent ?(
+                    <>
+                        <Modal.Header closeButton>
+                        <Modal.Title>Note Content</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Hello
+                            {this.noteContnetNew} hello
+                        </Modal.Body>
+                    </>) : null }
+
 
                     <Modal.Footer>
                     <Button variant="secondary" onClick={()=>this.handleShow(false)}>
