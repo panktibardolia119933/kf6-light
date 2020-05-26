@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { openDialog } from './dialog_reducer.js'
+import { openDialog } from './dialogReducer.js'
 
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
