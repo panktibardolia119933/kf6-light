@@ -3,7 +3,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import { connect } from 'react-redux'
 import {editNote, removeDrawing} from '../../store/noteReducer.js'
-import {openDrawDialog} from '../app/dialogReducer.js'
+import {openDrawDialog} from '../../store/dialogReducer.js'
 import './Note.css'
 
 class Note extends React.Component {
