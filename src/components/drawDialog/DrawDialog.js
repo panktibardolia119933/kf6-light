@@ -8,24 +8,12 @@ class DrawDialog extends React.Component {
     constructor(props) {
         super(props);
         this.onConfirm = this.onConfirm.bind(this);
+        this.onLoad = this.onLoad.bind(this);
+        this.getIframeRef = this.getIframeRef.bind(this);
     }
 
     onConfirm(){
-        var wnds = document.getElementsByTagName("iframe");
-        var wnd1 = null;
-        for(var i = 0; i < wnds.length; i++){
-            if(wnds[i].src.endsWith("drawing-tool/svg/index.html")) {
-                //Found the element
-                if(wnd1 !== null) {
-                    // 2 iframes with same src found
-                    console.log("error, found second window with matching src");
-                    console.log(wnd1);
-                }
-                else{
-                    wnd1 = wnds[i].contentWindow;
-                }
-            }
-        }
+        var wnd1 = this.iframe_ref.contentWindow;
         var bg = wnd1.svgCanvas.current_drawing_.all_layers[0];
         var wnd2 = wnd1.svgCanvas.current_drawing_.all_layers[1];
 
@@ -68,6 +56,20 @@ class DrawDialog extends React.Component {
         }.bind(this);
     }
 
+    getIframeRef(frame) {
+        if(!frame) {
+            return
+        }
+        this.iframe_ref = frame
+    }
+
+    onLoad(e){
+        const svg = this.props.note.editSvg
+        if (svg){
+            e.target.contentWindow.svgCanvas.setSvgString(svg)
+        }
+    }
+
     render() {
         return (
             <Dialog
@@ -76,7 +78,9 @@ class DrawDialog extends React.Component {
                 onClose={this.props.onClose}
                 onConfirm={this.onConfirm}
                 confirmButton='Add'>
-                <Iframe source='/drawing-tool/svg/index.html' svg={this.props.note.editSvg} />
+
+
+                <iframe onLoad={this.onLoad} title='DrawingTool' src='/drawing-tool/svg/index.html' ref={this.getIframeRef} width='100%' height='100%'></iframe>
             </Dialog>
         )
     }

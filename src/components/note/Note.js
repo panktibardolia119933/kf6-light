@@ -17,7 +17,6 @@ class Note extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.drawing && prevProps.drawing !== this.props.drawing && this.props.drawTool === this.props.noteId) {
-            console.log("Drawing added")
             this.editor.insertContent(this.props.drawing)
             this.props.removeDrawing()
         }
@@ -48,7 +47,6 @@ class Note extends React.Component {
 
     addDrawing(drawing) {
         // Add draw to editor
-        console.log(drawing)
         this.editor.insertContent(drawing);
     }
 

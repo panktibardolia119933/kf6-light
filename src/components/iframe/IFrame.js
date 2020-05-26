@@ -10,7 +10,6 @@ class Iframe extends React.Component {
         this.onLoad = this.onLoad.bind(this)
     }
     writeHTML(frame){
-        console.log('writeHTML')
         if(!frame) {
             return
         }
@@ -18,7 +17,6 @@ class Iframe extends React.Component {
     }
 
     onLoad(e){
-        console.log(e.target.contentWindow.svgCanvas)
         if (this.props.svg){
             e.target.contentWindow.svgCanvas.setSvgString(this.props.svg)
         }
