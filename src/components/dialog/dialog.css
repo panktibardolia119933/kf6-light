@@ -1,0 +1,25 @@
+.dlg-confirm-button {
+    float: right;
+    font-size: 0.6rem;
+}
+
+.dlg-card {
+    width: 100%;
+    font-size: 0.8rem;
+}
+
+.dlg-card-header {
+    padding: 0 1.25rem;
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.dlg-card-body {
+    padding: 0 0.5rem;
+}
+
+.dlg-card-footer {
+    padding: 0 1.25rem;
+    background-color: white;
+}
