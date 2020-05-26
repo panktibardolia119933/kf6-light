@@ -11,7 +11,7 @@ const Dialog = props => {
     return (
             <Rnd
                 className={"contrib-dialog"}
-                style={dialog_style}
+                style={{...dialog_style, ...props.style}}
                 default={{
                     x: 100,
                     y: 100,
@@ -19,6 +19,7 @@ const Dialog = props => {
                     height: 500,
                 }}
                 onClick={props.onClick}
+                onMouseDown={props.onMouseDown}
                 dragHandleClassName='dlg-card-header'
                 bounds='window'
             >

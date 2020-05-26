@@ -5,12 +5,10 @@ import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
 import Toolbar from '../reusable/toolbar';
 
-import DialogHandler from '../components/dialogHandler/DialogHandler.js'
-import DrawDialog from '../components/drawDialog/DrawDialog.js'
-import Note from '../components/note/Note.js';
 import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
 import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
+import NewNote from '../components/newNote/NewNote.js'
 
 import './view.css';
 class View extends Component {
@@ -506,25 +504,10 @@ class View extends Component {
     }
 
     render() {
-        const dialogs = this.props.dialogs;
-
-        const notesComponents = dialogs.dialogs.map((dlg) => (
-            <Note key={dlg.noteId} noteId={dlg.noteId}
-            />
-        ));
 
         return (
             <>
-                <DialogHandler dialogs={dialogs.dialogs}
-                               onDialogClose={this.onCloseDialog}
-                               onConfirm={this.onCloseDialog}
-                >
-                    {notesComponents}
-                </DialogHandler>
-                {dialogs.drawTool!== null ?
-                 <DrawDialog onClose={this.props.closeDrawDialog}
-                             onConfirm={this.onConfirmDrawDialog}
-                 /> : null}
+                <NewNote/>
 
                     <div className="row container min-width">
                         {/* LEFT NAVBAR */}

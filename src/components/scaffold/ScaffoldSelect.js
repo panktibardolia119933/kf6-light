@@ -48,7 +48,7 @@ class ScaffoldSelect extends React.Component {
         if (scaffolds.length && scaffolds[this.state.selected].supports) {
             supports = scaffolds[this.state.selected].supports.map((support, i) =>
                 <Col className="mt-1" key={i} md={12}>
-                    <div className='KFSupportButton' size='sm' block onClick={() => this.scaffoldSelected(this.state.selected, support) }>
+                    <div className='KFSupportButton' size='sm' onClick={() => this.scaffoldSelected(this.state.selected, support) }>
                         {support._to.title}
                     </div>
                 </Col>

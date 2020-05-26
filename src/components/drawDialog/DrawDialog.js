@@ -71,6 +71,7 @@ class DrawDialog extends React.Component {
         return (
             <Dialog
                 title='DrawTool'
+                style={{zIndex: 3000}}
                 onClose={this.props.onClose}
                 onConfirm={this.onConfirm}
                 confirmButton='Add'>
