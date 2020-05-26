@@ -1,11 +1,12 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { openDialog } from './dialogReducer.js'
+import { openDialog, openDrawDialog } from './dialogReducer.js'
 
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
 export const editNote = createAction('EDIT_NOTE')
 export const addDrawing = createAction('ADD_DRAWING')
 export const removeDrawing = createAction('REMOVE_DRAWING')
+export const editSvg = createAction('EDIT_SVG')
 
 let noteCounter = 0
 const initState = {drawing: ''}
@@ -25,6 +26,9 @@ export const noteReducer = createReducer(initState, {
     },
     [removeDrawing]: (notes, action) => {
         notes.drawing = '';
+    },
+    [editSvg]: (notes, action) => {
+        notes[action.payload.noteId].editSvg = action.payload.svg
     }
 });
 
@@ -37,4 +41,9 @@ export const newNote = () => dispatch => {
                          content: 'This is a test Note',
                          noteId: note.id,
                         }))
+}
+
+export const editSvgDialog = (noteId, svg) => dispatch => {
+    dispatch(editSvg({noteId, svg}))
+    dispatch(openDrawDialog(noteId))
 }

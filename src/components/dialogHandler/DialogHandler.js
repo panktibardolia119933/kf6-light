@@ -58,6 +58,7 @@ const DialogHandler = props => {
             {dialogs.drawTool!== null ?
              <DrawDialog onClose={onCloseDrawDialog}
                          onConfirm={onConfirmDrawDialog}
+                         noteId={dialogs.drawTool}
              /> : null}
         </div>
     )

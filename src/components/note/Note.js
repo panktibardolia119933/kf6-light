@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import { connect } from 'react-redux'
-import {editNote, removeDrawing} from '../../store/noteReducer.js'
+import {editNote, removeDrawing, editSvgDialog} from '../../store/noteReducer.js'
 import {openDrawDialog} from '../../store/dialogReducer.js'
 import './Note.css'
 
@@ -37,9 +37,13 @@ class Note extends React.Component {
         this.editor = editor;
     }
 
-    onDrawingToolOpen(){
+    onDrawingToolOpen(svg){
         //Create dialog
-        this.props.openDrawDialog(this.props.noteId);
+        if (svg) {
+            this.props.editSvgDialog(this.props.noteId, svg);
+        } else {
+            this.props.openDrawDialog(this.props.noteId);
+        }
     }
 
     addDrawing(drawing) {
@@ -96,7 +100,7 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
-const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing}
+const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing, editSvgDialog}
 
 export default connect(
     mapStateToProps,

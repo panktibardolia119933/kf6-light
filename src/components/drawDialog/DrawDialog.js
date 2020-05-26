@@ -1,6 +1,7 @@
 import React from 'react';
 import Dialog from '../dialog/Dialog.js'
 import Iframe from '../iframe/IFrame.js'
+import { connect } from 'react-redux'
 
 class DrawDialog extends React.Component {
 
@@ -75,10 +76,20 @@ class DrawDialog extends React.Component {
                 onClose={this.props.onClose}
                 onConfirm={this.onConfirm}
                 confirmButton='Add'>
-                <Iframe source='/drawing-tool/svg/index.html' />
+                <Iframe source='/drawing-tool/svg/index.html' svg={this.props.note.editSvg} />
             </Dialog>
         )
     }
 }
 
-export default DrawDialog;
+const mapStateToProps = (state, ownProps) => {
+    return {
+        note: state.notes[ownProps.noteId],
+    }
+}
+
+/* const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing, editSvgDialog} */
+
+export default connect(
+    mapStateToProps,
+)(DrawDialog)

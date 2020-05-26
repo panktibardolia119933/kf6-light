@@ -7,25 +7,23 @@ class Iframe extends React.Component {
 
         this.iframe_ref = null
         this.writeHTML = this.writeHTML.bind(this)
-
+        this.onLoad = this.onLoad.bind(this)
     }
     writeHTML(frame){
         console.log('writeHTML')
         if(!frame) {
             return
         }
-
         this.iframe_ref = frame
-
-        /* let doc = frame.contentDocument
-
-         * doc.open()
-         * doc.write(this.props.html)
-         * doc.close()
-
-         * frame.style.width = '100%'
-         * frame.style.height = `${frame.contentWindow.document.body.scrollHeight}px` */
     }
+
+    onLoad(e){
+        console.log(e.target.contentWindow.svgCanvas)
+        if (this.props.svg){
+            e.target.contentWindow.svgCanvas.setSvgString(this.props.svg)
+        }
+    }
+
     render() {
 
         if (!this.props.source) {
@@ -34,7 +32,7 @@ class Iframe extends React.Component {
 
         const src = this.props.source;
         return (
-                <iframe title={this.props.title} src={src} ref={this.writeHTML} width='100%' height='100%'></iframe>
+                <iframe onLoad={this.onLoad} title={this.props.title} src={src} ref={this.writeHTML} width='100%' height='100%'></iframe>
         );
     }
 };
