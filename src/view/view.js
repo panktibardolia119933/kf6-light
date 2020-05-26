@@ -8,7 +8,7 @@ import Toolbar from '../reusable/toolbar';
 import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
 import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
-import NewNote from '../components/newNote/NewNote.js'
+import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 
 import './view.css';
 class View extends Component {
@@ -507,7 +507,7 @@ class View extends Component {
 
         return (
             <>
-                <NewNote/>
+                <DialogHandler/>
 
                     <div className="row container min-width">
                         {/* LEFT NAVBAR */}
@@ -517,10 +517,8 @@ class View extends Component {
                                 <Col md="12"sm="2" xs="2">
                                     <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
                                         
-                                        <Dropdown.Item>
-                                            <Link onClick={this.props.newNote}>
+                                        <Dropdown.Item onClick={this.props.newNote}>
                                                 New Note
-                                            </Link>
                                         </Dropdown.Item>
 
                                         <Dropdown.Item onClick={()=>this.newView()}>

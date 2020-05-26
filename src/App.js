@@ -6,7 +6,7 @@ import SignUp from './account/signup';
 import CommunityManager from './communityManager';
 import TopNavbar from './reusable/topNavbar';
 import View from './view/view';
-
+import NewNote from './components/newNote/NewNote'
 import './App.css';
 import ChangePassword from './account/change-password';
 
@@ -24,6 +24,8 @@ function App() {
       <Route path="/community-manager" component={CommunityManager}>
       </Route>
       <Route path="/view" component={View}>      
+      </Route>
+      <Route path="/new-note" component={NewNote}>
       </Route>
       <Route path="/change-password" component={ChangePassword}>      
       </Route>
