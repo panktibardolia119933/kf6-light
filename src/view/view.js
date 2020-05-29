@@ -4,8 +4,13 @@ import { DropdownButton, Dropdown, Button, Container, Row, Col, Modal, Nav, NavD
 import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
 import Toolbar from '../reusable/toolbar';
-import './view.css';
 
+import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
+import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
+import { connect } from 'react-redux'
+import DialogHandler from '../components/dialogHandler/DialogHandler.js'
+
+import './view.css';
 class View extends Component {
 
     myRegistrations= [];
@@ -56,7 +61,8 @@ class View extends Component {
 
         this.handleSubmitView = this.handleSubmitView.bind(this);
         this.handleChangeView = this.handleChangeView.bind(this);
-
+        this.onCloseDialog = this.onCloseDialog.bind(this);
+        this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
         
     }
     
@@ -490,10 +496,22 @@ class View extends Component {
         
     }
 
+    onConfirmDrawDialog(drawing){
+        this.props.addDrawing(drawing);
+        this.props.closeDrawDialog();
+    }
+
+    onCloseDialog(dlg){
+        this.props.removeNote(dlg.noteId);
+        this.props.closeDialog(dlg.id);
+    }
+
     render() {
+
         return (
             <>
-                
+                <DialogHandler/>
+
                     <div className="row container min-width">
                         {/* LEFT NAVBAR */}
                         <Col md="1" sm="12" className="pd-6-top">
@@ -502,10 +520,8 @@ class View extends Component {
                                 <Col md="12"sm="2" xs="2">
                                     <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
                                         
-                                        <Dropdown.Item onClick={()=>this.newNote()}>
-                                            <Link onClick={()=>this.handleShow(true)}>
+                                        <Dropdown.Item onClick={this.props.newNote}>
                                                 New Note
-                                            </Link>
                                         </Dropdown.Item>
 
                                         <Dropdown.Item onClick={()=>this.newView()}>
@@ -733,10 +749,23 @@ class View extends Component {
                     </Button>
                     </Modal.Footer>
                 </Modal>
-                
+
+
+
         </>
         );
     }
 }
 
-export default View;
+const mapStateToProps = (state, ownProps) => {
+    return {
+        dialogs: state.dialogs
+    }
+}
+
+const mapDispatchToProps = { closeDrawDialog, addDrawing, removeNote, closeDialog, newNote}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(View)

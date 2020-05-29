@@ -1,0 +1,50 @@
+import { createAction, createReducer } from '@reduxjs/toolkit';
+import api from './api.js'
+
+export const requestScaffold = createAction('REQUEST_SCAFFOLD')
+export const receiveScaffold= createAction('RECEIVE_SCAFFOLD')
+
+const initState = {isFetching: false,
+                   items: [],
+                   fetched: false,
+                   communityId: '5e445735d525b936837f7450',
+                   contextId: '5e445735d525b936837f7452'}
+
+export const scaffoldReducer = createReducer(initState, {
+    [receiveScaffold]: (state, action) => {
+        state.items = action.payload
+        state.isFetching = false
+        state.fetched = true
+    },
+    [requestScaffold]: (state, action) => {
+        state.isFetching = true
+    }
+});
+
+export const fetchScaffolds = (communityId, contextId) => {
+    return dispatch => {
+        dispatch(requestScaffold)
+
+        let scaffold_promise = api.getCommunity(communityId).then( res => {
+            let promises = res.data.scaffolds.map((scaffoldId) => {
+                return api.getObject(scaffoldId);
+            });
+            return Promise.all(promises).then(values =>
+                    values.map((val) => val.data)
+            )
+        });
+
+        return Promise.all([scaffold_promise, api.getScaffoldLinks(contextId)]).then(async res =>{
+            let links = res[1].map((link) => link.to);
+            let scaffolds = res[0].filter((el) => links.includes(el._id));
+            /* const scaffolds = this.state.scaffolds; */
+            let supports = await Promise.all(scaffolds.map((el) => api.getLinksFrom(el._id)));
+            scaffolds = scaffolds.map((scaffold, i) => {
+                scaffold.supports = supports[i];
+                return scaffold;
+            })
+
+            dispatch(receiveScaffold(scaffolds))
+        });
+    }
+}
