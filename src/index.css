@@ -67,6 +67,10 @@ body {
   margin-top: 4rem !important;
 }
 
+.mrg-6-top {
+  margin-top: 6rem !important;
+}
+
 .mrg-8-top{
   margin-top: 6rem !important;
 }
@@ -145,4 +149,59 @@ body {
 
 .visible-1{
   z-index: 1 !important;
+}
+
+.primary-bg-50{
+  background-color: #FAFAFA !important;
+}
+
+.primary-bg-100{
+  background-color: #F5F5F5 !important;
+}
+
+.primary-bg-200{
+  background-color: #EEEEEE !important;
+}
+
+.primary-bg-300{
+  background-color: #E0E0E0 !important;
+}
+
+.primary-bg-400{
+  background-color: #BDBDBD !important;
+}
+
+.primary-bg-500{
+  background-color: #9E9E9E !important;
+}
+
+.primary-bg-600{
+  background-color: #757575 !important;
+}
+
+
+.primary-bg-700{
+  background-color: #616161 !important;
+}
+
+.primary-bg-800{
+  background-color: #424242 !important;
+}
+
+.primary-bg-900{
+  background-color: #212121 !important;
+}
+
+
+/* SIZE */
+.sz-1{
+  font-size: 1rem !important;
+}
+
+.sz-2{
+  font-size: 2rem !important;
+}
+
+.sz-3{
+  font-size: 3rem !important;
 }

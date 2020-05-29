@@ -172,8 +172,11 @@ class View extends Component {
                     })
                     this.hierarchyNote = this.state.hNotes;
                     for(var i in result.data){
-                        this.from.push(result.data[i].from);
-                        this.to.push(result.data[i].to);
+                            if(result.data[i]._from.type == "Note" && result.data[i]._to.type == "Note"){
+                                this.from.push(result.data[i].from);
+                                this.to.push(result.data[i].to);
+                        }
+                        
                     }
                     
                     //Add into tos list
@@ -548,7 +551,7 @@ class View extends Component {
                  
                         
                         {/* NOTES */}
-                        <Col md="11" sm="12" className="pd-8">                     
+                        <Col md="11" sm="12" className="mrg-6-top pd-2 border border-secondary primary-bg-200">                     
                             {this.state.hNotes.map((obj) => {
                             return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
                                 <Col className="mr-auto">
@@ -570,8 +573,23 @@ class View extends Component {
                                                 
                                         //     })
                                         // )
-                                        (<></>     
-                                        )}                                    
+                                        (<>
+                                            {obj[0]? 
+                                            (
+                                                obj.map((subObj)=>{
+                                                    return <Row>
+                                                        <Col>
+                                                            {subObj._to && subObj._to.title && subObj._to.created ?(<>
+                                                            <Row className="indigo sz-3"> {subObj._to.title}</Row>
+                                                            <Row> Created On {subObj._to.created}</Row></>):(<></>)}
+                                                        </Col>
+                                                    </Row>
+                                                            
+                                                })
+                                            )
+                                            :
+                                            (<></>) }
+                                        </>)}                                    
                                     
                                     {obj._from && obj._from.title && obj._to.created ? (<><Row className="pd-2-left blue"> {obj._from.title}</Row><Row className="pd-2-left"> Created On {obj._from.created}</Row></>):(<></>)}                                     
                                     
