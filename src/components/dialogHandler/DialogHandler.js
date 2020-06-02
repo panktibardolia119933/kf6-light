@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {closeDialog, closeDrawDialog, focusDialog } from '../../store/dialogReducer.js'
 import {removeNote, addDrawing} from '../../store/noteReducer.js'
 import DrawDialog from '../drawDialog/DrawDialog.js'
+import AttachPanel from '../attachmentCollapse/AttachPanel.js'
 
 const DialogHandler = props => {
     const dialogs = useSelector(state => state.dialogs);
@@ -60,6 +61,8 @@ const DialogHandler = props => {
                          onConfirm={onConfirmDrawDialog}
                          noteId={dialogs.drawTool}
              /> : null}
+
+            <AttachPanel></AttachPanel>
         </div>
     )
 

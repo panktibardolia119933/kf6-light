@@ -31,4 +31,46 @@ const getObject = (objectId) => {
     return axios.get(`${apiUrl}/objects/${objectId}`, config);
 }
 
-export default {getCommunity, getScaffoldLinks, getLinksFrom, getObject}
+const createAttachment = (communityId, authorId) => {
+    var newobj = {
+        communityId: communityId,
+        type: 'Attachment',
+        title: 'an Attachment',
+        authors: [authorId],
+        status: 'unsaved',
+        permission: 'protected',
+        data: {
+            version: 0
+        }
+    };
+    return axios.post(`${apiUrl}/contributions/${communityId}`, newobj, config)
+}
+
+const getAuthor = (communityId) => {
+    return axios.get(`${apiUrl}/authors/${communityId}/me`, config)
+}
+
+const uploadFile = (file, onProgress) => {
+    var formData = new FormData();
+    formData.append("file", file);
+    return axios.post(`${apiUrl}/upload`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            ...config.headers
+        }
+    })
+}
+
+const modifyObject = (object, communityId) => {
+    return axios.put(`${apiUrl}/objects/${communityId}`, object, config)
+}
+
+const postAttachmentLink = (attachId, contribId) => {
+    return axios.post(`${apiUrl}/links/`,
+                      {from: contribId, to: attachId, type:'attach'},
+                      config)
+}
+
+export default {getCommunity, getScaffoldLinks,
+                getLinksFrom, getObject, createAttachment,
+                getAuthor, uploadFile, modifyObject, postAttachmentLink}

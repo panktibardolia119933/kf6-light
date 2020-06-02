@@ -2,6 +2,7 @@ import React from 'react';
 import MCEditor from '../editor/MCEditor'
 import {Container, Row, Col, Form} from 'react-bootstrap'
 import ScaffoldSelect from '../scaffold/ScaffoldSelect'
+import AttachArea from '../attachmentArea/AttachArea.js'
 
 import './WriteTab.css';
 class WriteTab extends React.Component {
@@ -41,6 +42,9 @@ class WriteTab extends React.Component {
                                       onEditorChange={(content, editor) => onChange({content})}/>
 
                         </Col>
+                    </Row>
+                    <Row className='mt-2'>
+                        <AttachArea note={note}></AttachArea>
                     </Row>
             </Container>
         )

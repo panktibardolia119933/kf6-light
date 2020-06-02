@@ -1,6 +1,5 @@
 import React from 'react';
 import Dialog from '../dialog/Dialog.js'
-import Iframe from '../iframe/IFrame.js'
 import { connect } from 'react-redux'
 
 class DrawDialog extends React.Component {
