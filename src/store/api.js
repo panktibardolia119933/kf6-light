@@ -6,7 +6,9 @@ const token = sessionStorage.getItem('token');
 const config = {
     headers: { Authorization: `Bearer ${token}` }
 };
-
+const postContribution = (communityId, obj) => {
+    return axios.post(`${apiUrl}/contributions/${communityId}`, obj, config);//, {mode: 'cors'});
+}
 const getCommunity = (communityId) => {
     return axios.get(`${apiUrl}/communities/${communityId}`, config);//, {mode: 'cors'});
     // return fetch;
@@ -71,6 +73,6 @@ const postAttachmentLink = (attachId, contribId) => {
                       config)
 }
 
-export default {getCommunity, getScaffoldLinks,
+export default {postContribution, getCommunity, getScaffoldLinks,
                 getLinksFrom, getObject, createAttachment,
                 getAuthor, uploadFile, modifyObject, postAttachmentLink}

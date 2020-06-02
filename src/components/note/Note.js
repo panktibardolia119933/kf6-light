@@ -27,7 +27,7 @@ class Note extends React.Component {
             const {tagCreator, initialText} = note.scaffold;
             this.addSupport(true, initialText, tagCreator)
         }else{
-            this.props.editNote({id: this.props.noteId, ...note})
+            this.props.editNote({_id: this.props.noteId, ...note})
         }
     }
 
@@ -70,7 +70,7 @@ class Note extends React.Component {
 
                 <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" transition={false}>
                     <Tab eventKey="home" title="read">
-                        <div  dangerouslySetInnerHTML={{__html: this.props.note.content}} />
+                        <div  dangerouslySetInnerHTML={{__html: this.props.note.data.body}} />
                     </Tab>
                     <Tab eventKey="profile" title="write">
                         <WriteTab

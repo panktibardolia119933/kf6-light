@@ -9,9 +9,10 @@ const NewNote = props => {
     const communityId = useSelector((state) => state.globals.communityId)
     const viewId = useSelector((state) => state.globals.viewId)
     const view = useSelector((state) => state.globals.view)
+    const author = useSelector(state => state.globals.author);
     const dispatch = useDispatch();
     const createNewNote = () => {
-        dispatch(newNote())
+        dispatch(newNote(view, communityId, author._id))
     };
 
     useEffect(() => {

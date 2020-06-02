@@ -39,7 +39,7 @@ class WriteTab extends React.Component {
                         <Col md={9}>
                             <MCEditor value={note.content}
                                       onEditorSetup={onEditorSetup}
-                                      onEditorChange={(content, editor) => onChange({content})}/>
+                                      onEditorChange={(content, editor) => onChange({ data: {body: content}})}/>
 
                         </Col>
                     </Row>

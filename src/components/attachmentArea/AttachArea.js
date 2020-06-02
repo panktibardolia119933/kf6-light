@@ -6,7 +6,7 @@ import {openAttachPanel} from '../../store/dialogReducer.js'
 const AttachArea = props => {
     const dispatch = useDispatch();
     const attachment = (inline) => {
-        dispatch(openAttachPanel({noteId: props.note.id, inline}))
+        dispatch(openAttachPanel({noteId: props.note._id, inline}))
     }
 
     return (
