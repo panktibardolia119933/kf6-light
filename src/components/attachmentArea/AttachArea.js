@@ -60,9 +60,9 @@ const AttachArea = props => {
             <Row>
                 <Col>
                     <span className=''>Insert image or file: </span>
-                    <Button size='sm' variant='outline-dark' className='mx-2' onClick={()=> props.onNewAttachClick(true)}>Inline</Button>
-                    <Button size='sm' variant='outline-dark' className='mx-2' onClick={()=>props.onNewAttachClick(false)}>As an attachment</Button>
-                    <Button size='sm' className='mx-2' variant='outline-dark' onClick={addImages} disabled={selectedImgs.length === 0}>Insert</Button>
+                    <Button className='attach-button mx-2' size='sm' variant='outline-dark' onClick={()=> props.onNewAttachClick(true)}>Inline</Button>
+                    <Button className='attach-button mx-2' size='sm' variant='outline-dark' onClick={()=>props.onNewAttachClick(false)}>As an attachment</Button>
+                    <Button className='attach-button mx-2' size='sm' variant='outline-dark' onClick={addImages} disabled={selectedImgs.length === 0}>Insert</Button>
                 </Col>
             </Row>
             <Row id={`attachbox-${props.noteId}`} className='attachment-box'>
