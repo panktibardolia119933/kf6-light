@@ -9,6 +9,7 @@ import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
 import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
+import NoteContent from '../reusable/noteContent'
 
 import './view.css';
 class View extends Component {
@@ -22,7 +23,7 @@ class View extends Component {
     myTempTo = [];
     hierarchyNote =[];
     noteData1 = [];
-    noteContnetNew;
+    noteContnetNew =[];
     
     //TOKEN
     token = sessionStorage.getItem('token');
@@ -54,6 +55,8 @@ class View extends Component {
             sFrom : [],
             sTo : [],
             showNoteContent: false,
+            noteContnetList : [],
+
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -207,6 +210,7 @@ class View extends Component {
                                 if(this.hierarchyNote[index]){temporaryTo.push(pushObj);}
                                 temporaryTo.push(this.hierarchyNote[l]);
                                 this.hierarchyNote[l] = temporaryTo;
+                                delete this.hierarchyNote[index];
                                 console.log("SHOULD",this.hierarchyNote);
                                 
                             }
@@ -413,7 +417,6 @@ class View extends Component {
             showCommunity: false,
             showView: false,
             showRiseAbove: false,
-            showNoteContent : false,
         })
     }
 
@@ -423,7 +426,6 @@ class View extends Component {
             showNote: true,
             showView: false,
             showRiseAbove : false,
-            showNoteContent : false,
         })
     }
 
@@ -433,7 +435,6 @@ class View extends Component {
             showView: true,
             showRiseAbove : false,
             showNote : false, 
-            showNoteContent : false,
         })
         // https://kf6-stage.ikit.org/api/contributions/56947546535c7c0709beee5c        
     }
@@ -444,7 +445,6 @@ class View extends Component {
             showView: false,
             showNote : false,
             showRiseAbove : true,
-            showNoteContent : false,
         }) 
     }
     
@@ -461,26 +461,25 @@ class View extends Component {
             showView: false,
             showNote : false,
             showRiseAbove : false,
-            showNoteContent : true,
         });
         
     }
 
-    content(id){
+    showContent(id){
+        this.setState({
+            showNoteContent : true,
+        })
         var myArray = this.noteData1;
         for(var i in myArray){
             if(myArray[i]._id && myArray[i]._id===id){
-                console.log("DATA DATA", myArray[i].data);
-                this.noteContnetNew = myArray[i].data;
+                this.noteContnetNew.push(myArray[i]);
+                this.setState({
+                    noteContnetList : this.noteContnetNew,
+                })
+                console.log("DATA DATA", this.noteContnetNew);
+                
             }
-        }
-        this.handleShow(true);
-        // this.setState({
-        //     showView: false,
-        //     showNote : false,
-        //     showRiseAbove : false,
-        //     showNoteContent : true,
-        // })         
+        }        
     }
 
 
@@ -567,12 +566,12 @@ class View extends Component {
                  
                         
                         {/* NOTES */}
-                        <Col md="11" sm="12" className="mrg-6-top pd-2 border border-secondary primary-bg-200">                     
+                        <Col md="6" sm="12" className="mrg-6-top pd-2 border border-secondary primary-bg-200">                     
                             {this.state.hNotes.map((obj) => {
                             return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
                                 <Col className="mr-auto">
                                     {obj._to && obj._to.title && obj._to.created ?(<>
-                                        <Row className="indigo"> <Link onClick={()=>this.content(obj.to)}>{obj._to.title}</Link>
+                                        <Row className="indigo"> <Link onClick={()=>this.showContent(obj.to)}>{obj._to.title}</Link>
                                         </Row>
                                         <Row> Created On {obj._to.created}</Row>
                                         </>)
@@ -625,6 +624,16 @@ class View extends Component {
                             </Row>
                             })}
                         </Col>
+                        
+                        {/* NOTE CONTENT */}
+                        {this.state.showNoteContent ? 
+                        (<>
+                            <Col md="5" sm="12" className="mrg-6-top pd-2">
+                                <NoteContent noteContnetList ={this.noteContnetNew}/>
+                            </Col>
+                        </>)
+                        :null
+                        }
                         
                     </div>
                         
@@ -727,18 +736,6 @@ class View extends Component {
                         </Modal.Header>
                         <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
                             New Note
-                        </Modal.Body>
-                    </>) : null }
-
-
-                    {this.state.showNoteContent ?(
-                    <>
-                        <Modal.Header closeButton>
-                        <Modal.Title>Note Content</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            Hello
-                            {this.noteContnetNew} hello
                         </Modal.Body>
                     </>) : null }
 

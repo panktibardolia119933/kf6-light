@@ -1,6 +1,6 @@
 import axios from 'axios';
-const apiUrl = "http://localhost:8000/api";
-// const apiUrl = 'https://kf6-stage.ikit.org/api'
+// const apiUrl = "http://localhost:8000/api";
+const apiUrl = 'https://kf6-stage.ikit.org/api'
 
 const token = sessionStorage.getItem('token');
 const config = {
