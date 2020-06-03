@@ -1,5 +1,6 @@
 import React from 'react';
 import MCEditor from '../editor/MCEditor'
+import AttachPanel from '../attachmentCollapse/AttachPanel.js'
 import {Container, Row, Col, Form} from 'react-bootstrap'
 import ScaffoldSelect from '../scaffold/ScaffoldSelect'
 import AttachArea from '../attachmentArea/AttachArea.js'
@@ -9,7 +10,11 @@ class WriteTab extends React.Component {
 
     constructor(props){
         super(props)
+        this.state = {inlineAttach: true, attachPanel: false}
         this.onScaffoldSelected = this.onScaffoldSelected.bind(this);
+        this.onNewAttachmentClick = this.onNewAttachmentClick.bind(this);
+        this.closeAttachPanel = this.closeAttachPanel.bind(this);
+        this.onNewInlineAttach = this.onNewInlineAttach.bind(this);
     }
 
     onScaffoldSelected(tagCreator, initialText){
@@ -17,10 +22,20 @@ class WriteTab extends React.Component {
         this.props.onChange({scaffold: {tagCreator, initialText}})
     }
 
+    onNewAttachmentClick(inline){
+        this.setState({inlineAttach: inline, attachPanel: true})
+    }
+    onNewInlineAttach(inlineAttach) {
+        this.props.onChange({attach: inlineAttach})
+    }
+    closeAttachPanel()  {
+        this.setState({attachPanel: false})
+    }
     render() {
         const {note, onChange, onEditorSetup} = this.props;
         return (
             <Container className='write-container p-0'>
+
                     <Row>
                         <Col>
                             <Form.Group controlId="note-title">
@@ -37,14 +52,21 @@ class WriteTab extends React.Component {
                             <ScaffoldSelect initVal={0} onScaffoldSelected={this.onScaffoldSelected}/>
                         </Col>
                         <Col md={9}>
-                            <MCEditor value={note.content}
+                            <MCEditor value={note.data.body}
                                       onEditorSetup={onEditorSetup}
                                       onEditorChange={(content, editor) => onChange({ data: {body: content}})}/>
 
                         </Col>
                     </Row>
                     <Row className='mt-2'>
-                        <AttachArea note={note}></AttachArea>
+                        <AttachPanel noteId={note._id} onClose={this.closeAttachPanel} onNewInlineAttach={this.onNewInlineAttach} {...this.state}></AttachPanel>
+                        <AttachArea
+                            noteId={note._id}
+                            attachments={note.attachments}
+                            onNewAttachClick={this.onNewAttachmentClick}
+                            onNewInlineAttach={this.onNewInlineAttach}
+                        >
+                        </AttachArea>
                     </Row>
             </Container>
         )

@@ -10,6 +10,7 @@ export const removeDrawing = createAction('REMOVE_DRAWING')
 export const editSvg = createAction('EDIT_SVG')
 export const addAttachment = createAction('ADD_ATTACHMENT')
 export const removeAttachment = createAction('REMOVE_ATTACHMENT')
+export const setAttachments = createAction('SET_ATTACHMENTS')
 
 // let noteCounter = 0
 const initState = {drawing: '', attachments: {}}
@@ -42,6 +43,13 @@ export const noteReducer = createReducer(initState, {
     [removeAttachment]: (notes, action) => {
         let note = notes[action.payload.noteId]
         note.attachments = note.attachments.filter((att) => att.id !== action.payload.attId)
+    },
+    [setAttachments]: (state, action) => {
+        let note = state[action.payload.contribId]
+        note.attachments = action.payload.attachments.map((att)=> att._id)
+        action.payload.attachments.forEach((att) => {
+            state.attachments[att._id] = att
+        })
     }
 });
 
@@ -110,6 +118,13 @@ export const newNote = (view, communityId, authorId) => dispatch => {
 
     return api.postContribution(communityId, newN).then((res) => {
         const note = {attachments: [], ...res.data}
+        console.log("note created")
+        console.log(note)
+        const pos = {x: 100, y:100}
+        api.postLink(view._id, note._id, 'contains', pos)
+
+        //TODO saveContainsLinktoITM x2
+
         dispatch(addNote(note))
 
         dispatch(openDialog({title: 'New Note',
@@ -126,9 +141,20 @@ export const editSvgDialog = (noteId, svg) => dispatch => {
     dispatch(openDrawDialog(noteId))
 }
 
-export const attachmentUploaded = (noteId, attachment, inline) => dispatch => {
-    return api.postAttachmentLink(attachment._id, noteId).then((res) => {
+export const attachmentUploaded = (noteId, attachment, inline, x, y) => dispatch => {
+
+    return api.postLink(noteId, attachment._id, 'attach').then((res) => {
+
         // TODO dispatch(getLinksFrom(noteId))
         dispatch(addAttachment({noteId, attachment}))
+
     });
+}
+
+export const fetchAttachments = (contribId) => async dispatch => {
+    const link_atts = await api.getLinksFrom(contribId, 'attach')
+    const promises = link_atts.map((attach) => api.getObject(attach.to))
+    let attachments = await Promise.all(promises)
+    attachments = attachments.map((att) => att.data)
+    dispatch(setAttachments({contribId, attachments}))
 }

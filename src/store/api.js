@@ -49,6 +49,7 @@ const createAttachment = (communityId, authorId) => {
 }
 
 const getAuthor = (communityId) => {
+    console.log("Get Author")
     return axios.get(`${apiUrl}/authors/${communityId}/me`, config)
 }
 
@@ -59,12 +60,13 @@ const uploadFile = (file, onProgress) => {
         headers: {
             'Content-Type': 'multipart/form-data',
             ...config.headers
-        }
+        },
+        onUploadProgress: onProgress,
     })
 }
 
-const modifyObject = (object, communityId) => {
-    return axios.put(`${apiUrl}/objects/${communityId}`, object, config)
+const modifyObject = (object, communityId, objectId) => {
+    return axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object, config)
 }
 
 const postAttachmentLink = (attachId, contribId) => {
@@ -73,6 +75,12 @@ const postAttachmentLink = (attachId, contribId) => {
                       config)
 }
 
+const postLink = (fromId, toId, type, data) => {
+    return axios.post(`${apiUrl}/links`, {from: fromId, to: toId, type:type, data:data}, config)
+}
+
 export default {postContribution, getCommunity, getScaffoldLinks,
                 getLinksFrom, getObject, createAttachment,
-                getAuthor, uploadFile, modifyObject, postAttachmentLink}
+                getAuthor, uploadFile, modifyObject, postAttachmentLink,
+                postLink
+               }

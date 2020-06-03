@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import { connect } from 'react-redux'
-import {editNote, removeDrawing, editSvgDialog} from '../../store/noteReducer.js'
+import {editNote, removeDrawing, editSvgDialog, fetchAttachments } from '../../store/noteReducer.js'
 import {openDrawDialog} from '../../store/dialogReducer.js'
 import './Note.css'
 
@@ -26,7 +26,10 @@ class Note extends React.Component {
         if (note.scaffold){
             const {tagCreator, initialText} = note.scaffold;
             this.addSupport(true, initialText, tagCreator)
-        }else{
+        }else if (note.attach){
+            this.editor.insertContent(note.attach)
+        }
+        else{
             this.props.editNote({_id: this.props.noteId, ...note})
         }
     }
@@ -67,7 +70,6 @@ class Note extends React.Component {
     render() {
         return (
             <div>
-
                 <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" transition={false}>
                     <Tab eventKey="home" title="read">
                         <div  dangerouslySetInnerHTML={{__html: this.props.note.data.body}} />
@@ -98,7 +100,8 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
-const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing, editSvgDialog}
+const mapDispatchToProps = { editNote, openDrawDialog,
+                             removeDrawing, editSvgDialog, fetchAttachments}
 
 export default connect(
     mapStateToProps,

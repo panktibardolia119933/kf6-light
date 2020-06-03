@@ -13,7 +13,7 @@ class MCEditor extends React.Component {
                     init={{
                         setup: (editor) => {this.props.onEditorSetup(editor)},
                         content_css: './editor.css',
-                        height: 500,
+                        height: 300,
                         menubar: false,
                         plugins: [
                             'advlist autolink lists link image charmap print preview anchor',

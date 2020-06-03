@@ -62,7 +62,6 @@ const DialogHandler = props => {
                          noteId={dialogs.drawTool}
              /> : null}
 
-            <AttachPanel></AttachPanel>
         </div>
     )
 
