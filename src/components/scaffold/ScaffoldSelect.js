@@ -80,6 +80,8 @@ class ScaffoldSelect extends React.Component {
 
 const mapStateToProps = (state, ownProps) => {
     return {
+        communityId: state.globals.communityId,
+        contextId: state.globals.contextId,
         ...state.scaffolds
     }
 }

@@ -3,7 +3,7 @@ import DialogHandler from '../dialogHandler/DialogHandler.js'
 import {Button} from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux';
 import {newNote} from '../../store/noteReducer.js'
-import { fetchAuthor, fetchView } from '../../store/globalsReducer.js'
+import { fetchAuthor, fetchView, fetchCommunity} from '../../store/globalsReducer.js'
 const NewNote = props => {
 
     const communityId = useSelector((state) => state.globals.communityId)
@@ -18,6 +18,7 @@ const NewNote = props => {
     useEffect(() => {
         dispatch(fetchAuthor(communityId));
         dispatch(fetchView(viewId))
+        dispatch(fetchCommunity(communityId));
     }, [dispatch, communityId, viewId]);
 
     return (

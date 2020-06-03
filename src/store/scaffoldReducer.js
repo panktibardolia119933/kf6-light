@@ -7,8 +7,7 @@ export const receiveScaffold= createAction('RECEIVE_SCAFFOLD')
 const initState = {isFetching: false,
                    items: [],
                    fetched: false,
-                   communityId: '5e445735d525b936837f7450',
-                   contextId: '5e445735d525b936837f7452'}
+                  }
 
 export const scaffoldReducer = createReducer(initState, {
     [receiveScaffold]: (state, action) => {

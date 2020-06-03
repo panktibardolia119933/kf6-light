@@ -11,7 +11,6 @@ const postContribution = (communityId, obj) => {
 }
 const getCommunity = (communityId) => {
     return axios.get(`${apiUrl}/communities/${communityId}`, config);//, {mode: 'cors'});
-    // return fetch;
 }
 
 const  getScaffoldLinks = async(contextId) => {
