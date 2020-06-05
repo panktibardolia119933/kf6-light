@@ -17,9 +17,9 @@ class WriteTab extends React.Component {
         this.onNewInlineAttach = this.onNewInlineAttach.bind(this);
     }
 
-    onScaffoldSelected(tagCreator, initialText){
+    onScaffoldSelected(tagCreator, initialText, scaffoldText){
         console.log(tagCreator, initialText)
-        this.props.onChange({scaffold: {tagCreator, initialText}})
+        this.props.onChange({scaffold: {tagCreator, initialText, scaffoldText}})
     }
 
     onNewAttachmentClick(inline){
@@ -35,7 +35,6 @@ class WriteTab extends React.Component {
         const {note, onChange, onEditorSetup} = this.props;
         return (
             <Container className='write-container p-0'>
-
                     <Row>
                         <Col>
                             <Form.Group controlId="note-title">
@@ -48,13 +47,14 @@ class WriteTab extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col md={3} className='pr-0'>
+                        <Col md={2} className='pr-0'>
                             <ScaffoldSelect initVal={0} onScaffoldSelected={this.onScaffoldSelected}/>
                         </Col>
-                        <Col md={9}>
+                        <Col md={10}>
                             <MCEditor value={note.data.body}
                                       onEditorSetup={onEditorSetup}
                                       onEditorChange={(content, editor) => onChange({ data: {body: content}})}/>
+                            <div className='wordcount-bar text-right'>{note.wordCount} words</div>
 
                         </Col>
                     </Row>

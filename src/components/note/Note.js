@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import { connect } from 'react-redux'
-import {editNote, removeDrawing, editSvgDialog, fetchAttachments } from '../../store/noteReducer.js'
+import {editNote, removeDrawing, editSvgDialog, fetchAttachments, setWordCount } from '../../store/noteReducer.js'
 import {openDrawDialog} from '../../store/dialogReducer.js'
 import './Note.css'
 
@@ -13,6 +13,8 @@ class Note extends React.Component {
         this.onDrawingToolOpen = this.onDrawingToolOpen.bind(this);
         this.addDrawing = this.addDrawing.bind(this);
         this.onNoteChange = this.onNoteChange.bind(this);
+        this.wordCount = this.wordCount.bind(this);
+        this.scaffoldWords = 0;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -24,19 +26,27 @@ class Note extends React.Component {
 
     onNoteChange(note) {
         if (note.scaffold){
-            const {tagCreator, initialText} = note.scaffold;
-            this.addSupport(true, initialText, tagCreator)
+            const {tagCreator, initialText, scaffoldText} = note.scaffold;
+            this.addSupport(true, initialText, tagCreator, scaffoldText)
         }else if (note.attach){
             this.editor.insertContent(note.attach)
         }
         else{
             this.props.editNote({_id: this.props.noteId, ...note})
+            this.wordCount();
         }
+    }
+
+    wordCount() {
+        let wordCount = this.editor.plugins.wordcount.getCount() - this.scaffoldWords;
+        console.log(wordCount)
+        this.props.setWordCount({contribId: this.props.noteId, wc: wordCount})
     }
 
     onEditorSetup(editor){
         editor.onDrawButton = this.onDrawingToolOpen;
         this.editor = editor;
+        console.log(editor)
     }
 
     onDrawingToolOpen(svg){
@@ -53,11 +63,11 @@ class Note extends React.Component {
         this.editor.insertContent(drawing);
     }
 
-    addSupport(selection, initialText, tagCreator) {
+    addSupport(selection, initialText, tagCreator, scaffoldText) {
         const selected = this.editor.selection.getContent();
         let text = selected.length ? selected : initialText;
         const {tag, supportContentId} = tagCreator(text);
-
+        this.scaffoldWords += scaffoldText.split(' ').length
         this.editor.insertContent(tag)
         //select text after insert
         if (selection) {
@@ -70,6 +80,7 @@ class Note extends React.Component {
     render() {
         return (
             <div>
+                <div className='contrib-info'>Last modified: {this.props.note.modified}</div>
                 <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" transition={false}>
                     <Tab eventKey="home" title="read">
                         <div  dangerouslySetInnerHTML={{__html: this.props.note.data.body}} />
@@ -100,7 +111,7 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
-const mapDispatchToProps = { editNote, openDrawDialog,
+const mapDispatchToProps = { editNote, openDrawDialog, setWordCount,
                              removeDrawing, editSvgDialog, fetchAttachments}
 
 export default connect(

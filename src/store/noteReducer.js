@@ -11,6 +11,7 @@ export const editSvg = createAction('EDIT_SVG')
 export const addAttachment = createAction('ADD_ATTACHMENT')
 export const removeAttachment = createAction('REMOVE_ATTACHMENT')
 export const setAttachments = createAction('SET_ATTACHMENTS')
+export const setWordCount = createAction('SET_WORDCOUNT')
 
 // let noteCounter = 0
 const initState = {drawing: '', attachments: {}}
@@ -50,7 +51,12 @@ export const noteReducer = createReducer(initState, {
         action.payload.attachments.forEach((att) => {
             state.attachments[att._id] = att
         })
+    },
+    [setWordCount]: (state, action) => {
+        let note = state[action.payload.contribId]
+        note.wordCount = action.payload.wc
     }
+
 });
 
 const createNote = (communityId, authorId, contextMode, fromId, content) => {
@@ -118,8 +124,6 @@ export const newNote = (view, communityId, authorId) => dispatch => {
 
     return api.postContribution(communityId, newN).then((res) => {
         const note = {attachments: [], ...res.data}
-        console.log("note created")
-        console.log(note)
         const pos = {x: 100, y:100}
         api.postLink(view._id, note._id, 'contains', pos)
 

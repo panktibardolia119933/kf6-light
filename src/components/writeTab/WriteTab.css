@@ -5,3 +5,6 @@
 .col-scaffold {
     /* padding-right: 0; */
 }
+.wordcount-bar {
+    border: 1px solid #ccc;
+}

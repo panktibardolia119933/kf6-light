@@ -13,8 +13,8 @@ const Dialog = props => {
                 className={"contrib-dialog"}
                 style={{...dialog_style, ...props.style}}
                 default={{
-                    x: 100,
-                    y: 100,
+                    x: 400,
+                    y: 50,
                     width: 920,
                     height: 500,
                 }}

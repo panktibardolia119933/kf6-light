@@ -34,8 +34,9 @@ class ScaffoldSelect extends React.Component {
             initialText = '<br><br>'
         }
 
-        const tagCreator = scaffoldService.newScaffoldTag(support.to, support._to.title, isTemplate, addhyphen);
-        this.props.onScaffoldSelected(tagCreator, initialText)
+        const scaffold_text = support._to.title
+        const tagCreator = scaffoldService.newScaffoldTag(support.to, scaffold_text, isTemplate, addhyphen);
+        this.props.onScaffoldSelected(tagCreator, initialText, scaffold_text)
         /* this.addSupport(support, true, addhyphen, initialText, isTemplate); */
     }
 
@@ -47,7 +48,7 @@ class ScaffoldSelect extends React.Component {
         let supports = '';
         if (scaffolds.length && scaffolds[this.state.selected].supports) {
             supports = scaffolds[this.state.selected].supports.map((support, i) =>
-                <Col className="mt-1" key={i} md={12}>
+                <Col className="mt-1 p-0" key={i} md={12}>
                     <div className='KFSupportButton' size='sm' onClick={() => this.scaffoldSelected(this.state.selected, support) }>
                         {support._to.title}
                     </div>
@@ -58,9 +59,9 @@ class ScaffoldSelect extends React.Component {
         return (
             <Container>
                 <Row>
-                    <Col>
+                    <Col className='p-0'>
                         <Form>
-                            <Form.Group controlId="exampleForm.ControlSelect2">
+                            <Form.Group className='mb-1' controlId="exampleForm.ControlSelect2">
                                 <Form.Label>Select Scaffold</Form.Label>
                                 <Form.Control size='sm' as="select" onChange={this.onSelectChange}>
                                     {options}
