@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Container, Row, Col, Modal, Nav, NavDropdown, Navbar } from 'react-bootstrap';
+import { Link } from "react-router-dom";
+import { DropdownButton, Dropdown, Button, Row, Col, Modal } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
-import Toolbar from '../reusable/toolbar';
 
 import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
 import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
@@ -56,6 +55,9 @@ class View extends Component {
             sTo : [],
             showNoteContent: false,
             noteContnetList : [],
+            query:"",
+            filteredData: [],
+            filter:'title',
 
         };
 
@@ -66,6 +68,8 @@ class View extends Component {
         this.handleChangeView = this.handleChangeView.bind(this);
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
+
+        this.handleInputChange = this.handleInputChange.bind(this);
         
     }
     
@@ -125,19 +129,18 @@ class View extends Component {
 
 
             var viewNotesUrl= "https://kf6-stage.ikit.org/api/links/from/" + sessionStorage.getItem('viewId');
-            var links;
+            var links=[];
             // GET NOTES ID IN VIEW
             Axios.get(viewNotesUrl, config)
             .then(
                 result=>{
-                    links = result.data;
-                    // console.log("NOTES",links);
-                    for(var j in links){
-                        if(links[j]._to.type==="Note"){
-                            console.log(links[j]._to.title);
+                    for(var j in result.data){
+                        if(result.data[j] && result.data[j]._to.type==="Note"){
+                            links.push(result.data[j]);
                             
                         }
                     }
+                    
                     //NOTE LINKS
                     this.setState({
                         viewLinks: links,   
@@ -164,66 +167,89 @@ class View extends Component {
         
                 }).catch(
             error=>{
-                alert(error);
+                alert(error);                
             });
 
             
             //GET SEARCH - HIRARCHICAL NOTES
             var searchUrl = "https://kf6-stage.ikit.org/api/links/" + this.state.communityId + "/search";
             let query = {"query": {"type": "buildson"}};
-            var h=[];
             // var from=[], to=[];
             Axios.post(searchUrl, query, config)
             .then(
                 result=>{
-                    this.setState({
-                        hNotes: result.data,
-                    })
-                    this.hierarchyNote = this.state.hNotes;
                     for(var i in result.data){
-                            if(result.data[i]._from.type == "Note" && result.data[i]._to.type == "Note"){
-                                this.from.push(result.data[i].from);
-                                this.to.push(result.data[i].to);
+                        if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
+                            this.from.push(result.data[i].from);
+                            this.to.push(result.data[i].to);
+                            this.hierarchyNote.push(result.data[i]);
                         }
-                        
+                    
                     }
                     
-                    //Add into tos list
-                    for(var j in this.to){
-                        for(var k in this.from){
-                            if (this.from[k]=== this.to[j]){
-                                var tempTo= [this.to[j],this.to[k]];
-                                var temp={"from": this.from[j],"to":tempTo};
-                                h.push(temp);
-                            }
-                        }
-                    }
-                    console.log("This.state hNotes",this.state.hNotes);
-                    console.log("HIERARCHI",h);
+                    // //Add into tos list
+                    // for(var j in this.to){
+                    //     for(var k in this.from){
+                    //         if (this.from[k]=== this.to[j]){
+                    //             var tempTo= [this.to[j],this.to[k]];
+                    //             var temp={"from": this.from[j],"to":tempTo};
+                    //             h.push(temp);
+                    //         }
+                    //     }
+                    // }
+                    // console.log("This.state hNotes",this.state.hNotes);
+                    // console.log("HIERARCHI",h);
                     
                     try {
                         for(var l in this.to){
                             if(this.from.includes(this.to[l])){
                                 var index= this.from.indexOf(this.to[l]);
                                 var temporaryTo = [];
-                                var pushObj = this.hierarchyNote[index];
-                                if(this.hierarchyNote[index]){temporaryTo.push(pushObj);}
+                                if(this.hierarchyNote[index]){
+                                    temporaryTo.push(this.hierarchyNote[index]);
+                                }
                                 temporaryTo.push(this.hierarchyNote[l]);
                                 this.hierarchyNote[l] = temporaryTo;
-                                delete this.hierarchyNote[index];
-                                console.log("SHOULD",this.hierarchyNote);
-                                
+                                delete this.hierarchyNote[index];                                
                             }
                         }
+                        
                     } catch (error) {
                         //Do nothing
                     }finally{
                         this.setState({
                             hNotes : this.hierarchyNote
                         })
-                        console.log("Finally Hierarcy", this.state.hNotes);
+                        console.log("HNOTES", this.state.hNotes);
                         
                     }
+
+                    // try {
+                    //     this.to.forEach(toElement => {
+                    //         console.log("For");
+                    //         while(this.from.includes(toElement)){
+                    //             console.log("While");
+                    //             var toIndex = this.to.indexOf(toElement);
+                    //             var fromIndex = this.from.indexOf(toElement);
+                    //             var tempArray = [];
+                    //             tempArray.push(this.hierarchyNote[toIndex]);
+                    //             tempArray.push(this.hierarchyNote[fromIndex])
+                    //             this.hierarchyNote[toIndex] = tempArray;
+                    //             delete this.hierarchyNote[fromIndex];
+                    //             toElement = this.to[fromIndex];
+
+                    //         }
+                    //     }); 
+                    // }
+                    //  catch (error) {
+                    //     //Do nothing
+                    // }finally{
+                    //     this.setState({
+                    //         hNotes : this.hierarchyNote
+                    //     })
+                    //     console.log("HNOTES", this.state.hNotes);
+                        
+                    // }
                     
 
                     // if(this.arrangeFromTo()){
@@ -505,13 +531,70 @@ class View extends Component {
         this.props.closeDialog(dlg.id);
     }
 
+    handleInputChange(event){
+        this.setState({
+            query : event.target.value,
+        });
+
+        var filteredResults=[];
+        if(this.state.query){
+            switch (this.state.filter) {
+                case "title":
+                    this.state.viewLinks.filter(obj => obj._to.title.includes(this.state.query)).map(filteredObj => {
+                        filteredResults.push(filteredObj);
+                    })
+                    break;
+                
+                case "content":
+                    console.log("CONTENT");
+                    filteredResults = this.noteData1.filter(function (obj) {
+                        if (obj.data && obj.data.English){
+                            console.log("Print English", obj.data.English);  
+                                                  
+                            return obj.data.English.includes(event.target.value);
+                        }
+                    });
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+        
+        
+
+        this.setState({
+            filteredData : filteredResults,
+        })
+        
+    
+        // this.setState(viewLinks => {
+        //   const filteredData = viewLinks.data.filter(element => {
+        //     return element.name.toLowerCase().includes(query.toLowerCase());
+        //   });
+    
+        //   return {
+        //     query,
+        //     filteredData
+        //   };
+        // });
+      };
+
+
+      handleFilter = (e) => {
+        let value = e.target.value;
+        this.setState({
+            filter: value,
+        });
+    }
+
     render() {
 
         return (
             <>
                 <DialogHandler/>
 
-                    <div className="row container min-width">
+                    <div className="row min-width">
                         {/* LEFT NAVBAR */}
                         <Col md="1" sm="12" className="pd-6-top">
                             
@@ -564,16 +647,41 @@ class View extends Component {
                             </Row>
                         </Col> 
                  
-                        
                         {/* NOTES */}
-                        <Col md="6" sm="12" className="mrg-6-top pd-2 border border-secondary primary-bg-200">                     
-                            {this.state.hNotes.map((obj) => {
-                            return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
-                                <Col className="mr-auto">
+                        <Col md="5" sm="12" className="mrg-6-top pd-2-right v-scroll">
+                        <Form className="mrg-1-bot">
+                            <Row>
+                                <Col md="6">
+                                    <FormGroup>
+                                    <Input
+                                        placeholder="Search Your Note"
+                                        onChange={this.handleInputChange}
+                                    />
+                                    </FormGroup>
+                                </Col>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Input type="select" name="filter" id="filter" onChange={this.handleFilter}>
+                                            <option key="title" value="title">Search By Title</option>
+                                            <option key="scaffold" value="scaffold">Search By Scaffold</option>
+                                            <option key="content" value="content">Search By Content</option>
+                                            <option key="author" value="author">Search By Author</option>
+                                        })
+                                    }</Input>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                        </Form> 
+                        {this.state.query === ""? 
+                        (<>
+                            {this.state.hNotes.map((obj, i) => {
+                            return <Row key={i} className="mrg-05-top">
+                                <Col className="mr-auto primary-bg-200 rounded mrg-1-bot">
                                     {obj._to && obj._to.title && obj._to.created ?(<>
-                                        <Row className="indigo"> <Link onClick={()=>this.showContent(obj.to)}>{obj._to.title}</Link>
+                                        <Row className="pd-05">
+                                            <Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold">{obj._to.title}</Link>
                                         </Row>
-                                        <Row> Created On {obj._to.created}</Row>
+                                        <Row className="primary-600 sz-075 pd-05"> Created On {obj._to.created}</Row>
                                         </>)
                                         :
                                         // (
@@ -590,23 +698,52 @@ class View extends Component {
                                         // )
                                         (<>
                                             {obj[0]? 
-                                            (
-                                                obj.map((subObj)=>{
-                                                    return <Row>
+                                            (<>
+                                                <Row className="">
+                                                <Col>
+                                                    <Row>
+                                                    {obj[0]._to && obj[0]._to.title && obj[0]._to.created ?
+                                                    (<>
                                                         <Col>
-                                                            {subObj._to && subObj._to.title && subObj._to.created ?(<>
-                                                            <Row className="indigo sz-3"> {subObj._to.title}</Row>
-                                                            <Row> Created On {subObj._to.created}</Row></>):(<></>)}
+                                                            <Row className="pd-05"><Link onClick={()=>this.showContent(obj[0].to)} className="primary-800 font-weight-bold"> {obj[0]._to.title}</Link></Row>
+                                                            <Row className=" primary-600 sz-075 pd-05"> Created On {obj[0]._to.created}</Row>
+                                                        </Col>
+                                                    </>)
+                                                    :
+                                                    null}
+                                                    </Row>
+                                                
+                                                {obj.map((subObj,j)=>{
+                                                    return <Row key={j}>
+                                                        <Col md="1">
+                                                        </Col>
+                                                        <Col>
+                                                            {subObj._from && subObj._from.created ?(<>
+                                                            <Row className="pd-05"><Link onClick={()=>this.showContent(subObj.from)} className="primary-800 font-weight-bold">{subObj._from.title}</Link></Row>
+                                                            <Row className="primary-600 sz-075 pd-05"> Created On {subObj._from.created}</Row></>):(<></>)}
                                                         </Col>
                                                     </Row>
                                                             
-                                                })
-                                            )
+                                                })}
+                                                </Col>
+                                                </Row>
+                                            </>)
                                             :
                                             (<></>) }
                                         </>)}                                    
                                     
-                                    {obj._from && obj._from.title && obj._to.created ? (<><Row className="pd-2-left blue"> {obj._from.title}</Row><Row className="pd-2-left"> Created On {obj._from.created}</Row></>):(<></>)}                                     
+                                    {obj._from && obj._from.title && obj._to.created ? 
+                                        (<>
+                                            <Row>
+                                            <Col md="1"></Col>
+                                            <Col>
+                                                <Row className="pd-05"> <Link onClick={()=>this.showContent(obj.from)} className="primary-800 font-weight-bold">{obj._from.title}</Link></Row>
+                                                <Row className="primary-600 sz-075 pd-05"> Created On {obj._from.created}</Row>
+                                            </Col>
+                                            </Row>
+                                        </>)
+                                        :(<>
+                                        </>)}                                     
                                     
                                 </Col>
                             </Row>
@@ -614,21 +751,59 @@ class View extends Component {
                             
                             )}                            
                         {this.state.viewLinks.map((obj) => {
-                            return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
-                                <Col>
-                                <Row className="indigo"> {obj._to.title}</Row>
-                                <Row> {obj.to}</Row>
-                                <hr/>
-                                
-                                </Col>
-                            </Row>
+                            return <>
+                            {obj && obj._to.title?    
+                                (<>
+                                <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                    <Col className="primary-bg-200 rounded mrg-1-bot">
+                                    <Row className="pd-05"><Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold"> {obj._to.title}</Link></Row>
+                                    <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                    </Col>
+                                </Row>
+                                </>)
+                                :(<></>)
+                            }
+                            
+                            </>
                             })}
+                        </>)
+                        :(<>
+
+                        {this.state.filteredData.map((obj) => {
+                            return <>
+                            {obj._to && obj._to.title?    
+                                (<>
+                                <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                    <Col className="primary-bg-200 rounded mrg-1-bot">
+                                    <Row className="pd-05"><Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold"> {obj._to.title}</Link></Row>
+                                    <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                    </Col>
+                                </Row>
+                                </>)
+                                :(<>
+                                    {obj._id ? (<>
+                                        <Row key={obj._id} value={obj._id} className="mrg-05-top">
+                                        <Col className="primary-bg-200 rounded mrg-1-bot">
+                                        <Row className="pd-05"><Link onClick={()=>this.showContent(obj._id)} className="primary-800 font-weight-bold"> {obj.title}</Link></Row>
+                                        <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                        </Col>
+                                </Row>   
+                                    </>)
+                                :(<></>)}
+                                </>)
+                            }
+                            
+                            </>
+                            })}     
+
+                        </>)}                    
+                            
                         </Col>
                         
                         {/* NOTE CONTENT */}
                         {this.state.showNoteContent ? 
                         (<>
-                            <Col md="5" sm="12" className="mrg-6-top pd-2">
+                            <Col md="5" sm="12" className="mrg-6-top pd-2 v-scroll">
                                 <NoteContent noteContnetList ={this.noteContnetNew}/>
                             </Col>
                         </>)
@@ -700,7 +875,7 @@ class View extends Component {
                         <Modal.Body style={{'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto'}}>
                             {this.state.myViews.map((obj) => {
                             return <Row key={obj.id} value={obj.title} className="mrg-05-top">
-                                <Col><Link onClick={()=>this.changeView({obj})}> {obj.title} </Link></Col>
+                                <Col><Link onClick={()=>this.changeView({obj})} > {obj.title} </Link></Col>
                             </Row>
                             })}
                         </Modal.Body>

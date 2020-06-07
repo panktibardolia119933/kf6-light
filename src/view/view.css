@@ -25,3 +25,8 @@
 .dropdown-menu{
     z-index: 1000 !important;
 }
+
+.v-scroll{
+    height: 88vh !important;
+    overflow-y: scroll !important;
+}
