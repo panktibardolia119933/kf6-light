@@ -4,6 +4,7 @@ import WriteTab from '../writeTab/WriteTab'
 import { connect } from 'react-redux'
 import {editNote, removeDrawing, editSvgDialog, fetchAttachments, setWordCount } from '../../store/noteReducer.js'
 import {openDrawDialog} from '../../store/dialogReducer.js'
+import { scaffoldWordCount } from '../../store/kftag.service.js'
 import './Note.css'
 
 class Note extends React.Component {
@@ -33,13 +34,14 @@ class Note extends React.Component {
         }
         else{
             this.props.editNote({_id: this.props.noteId, ...note})
-            this.wordCount();
+            if (note.data) {
+                this.wordCount(note.data.body);
+            }
         }
     }
 
-    wordCount() {
-        let wordCount = this.editor.plugins.wordcount.getCount() - this.scaffoldWords;
-        console.log(wordCount)
+    wordCount(text) {
+        const wordCount = this.editor.plugins.wordcount.getCount() - scaffoldWordCount(text);
         this.props.setWordCount({contribId: this.props.noteId, wc: wordCount})
     }
 
@@ -96,6 +98,8 @@ class Note extends React.Component {
                     <Tab eventKey="contact" title="authors">
                         Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum varius duis at consectetur lorem donec? Et molestie ac, feugiat sed lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt?
                     </Tab>
+                    <Tab eventKey='history' title='history'></Tab>
+                    <Tab eventKey='properties' title='properties'></Tab>
                 </Tabs>
 
             </div>

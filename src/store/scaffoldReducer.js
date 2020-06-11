@@ -33,11 +33,11 @@ export const fetchScaffolds = (communityId, contextId) => {
             )
         });
 
-        return Promise.all([scaffold_promise, api.getScaffoldLinks(contextId)]).then(async res =>{
+        return Promise.all([scaffold_promise, api.getLinks(contextId, 'from', 'uses')]).then(async res =>{
             let links = res[1].map((link) => link.to);
             let scaffolds = res[0].filter((el) => links.includes(el._id));
             /* const scaffolds = this.state.scaffolds; */
-            let supports = await Promise.all(scaffolds.map((el) => api.getLinksFrom(el._id)));
+            let supports = await Promise.all(scaffolds.map((el) => api.getLinks(el._id, 'from')));
             scaffolds = scaffolds.map((scaffold, i) => {
                 scaffold.supports = supports[i];
                 return scaffold;

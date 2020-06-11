@@ -1,6 +1,8 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { openDialog, openDrawDialog } from './dialogReducer.js'
+import { openDialog, openDrawDialog, closeDialog } from './dialogReducer.js'
+import { postProcess } from './kftag.service.js'
 import api from './api.js'
+import { addNotification } from './notifier.js'
 
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
@@ -12,6 +14,8 @@ export const addAttachment = createAction('ADD_ATTACHMENT')
 export const removeAttachment = createAction('REMOVE_ATTACHMENT')
 export const setAttachments = createAction('SET_ATTACHMENTS')
 export const setWordCount = createAction('SET_WORDCOUNT')
+export const setLinks = createAction('SET_CONNECTIONS')
+// export const postContribution = createAction('POST_CONTRIBUTION')
 
 // let noteCounter = 0
 const initState = {drawing: '', attachments: {}}
@@ -55,6 +59,14 @@ export const noteReducer = createReducer(initState, {
     [setWordCount]: (state, action) => {
         let note = state[action.payload.contribId]
         note.wordCount = action.payload.wc
+    },
+    [setLinks]: (state, action) => {
+        let contrib = state[action.payload.contribId]
+        if (action.payload.direction === 'from'){
+            contrib.fromLinks = action.payload.links
+        }else{
+            contrib.toLinks = action.payload.links
+        }
     }
 
 });
@@ -123,7 +135,7 @@ export const newNote = (view, communityId, authorId) => dispatch => {
     const newN = createNote(communityId, authorId, mode);
 
     return api.postContribution(communityId, newN).then((res) => {
-        const note = {attachments: [], ...res.data}
+        const note = {attachments: [], fromLinks:[], toLinks:[], ...res.data}
         const pos = {x: 100, y:100}
         api.postLink(view._id, note._id, 'contains', pos)
 
@@ -133,7 +145,6 @@ export const newNote = (view, communityId, authorId) => dispatch => {
 
         dispatch(openDialog({title: 'New Note',
                              confirmButton: 'create',
-                             content: 'This is a test Note',
                              noteId: note._id,
                             }))
     })
@@ -156,9 +167,44 @@ export const attachmentUploaded = (noteId, attachment, inline, x, y) => dispatch
 }
 
 export const fetchAttachments = (contribId) => async dispatch => {
-    const link_atts = await api.getLinksFrom(contribId, 'attach')
+    const link_atts = await api.getLinks(contribId, 'from', 'attach')
     const promises = link_atts.map((attach) => api.getObject(attach.to))
     let attachments = await Promise.all(promises)
     attachments = attachments.map((att) => att.data)
     dispatch(setAttachments({contribId, attachments}))
+}
+
+export const postContribution = (contribId, dialogId) => async (dispatch, getState) => {
+    const state = getState()
+    let contrib = state.notes[contribId]
+    contrib = Object.assign({}, contrib)
+    contrib.data = Object.assign({}, contrib.data)
+    if (!contrib.title){
+        addNotification({title: 'Error Saving Note!', type:'danger', message:'Title is required'})
+        return
+    }
+    //TODO sync checking?
+    //TODO status.contribution = 'saving'
+    if (contrib.type === 'Note') {
+        // TODO if isGoogleDoc
+        // const isNewNote = contrib.status === 'unsaved'
+        contrib.status = 'active'
+        const jq = await postProcess(contrib.data.body, contrib._id, [], [])
+        dispatch(fetchLinks(contribId, 'from'))
+        dispatch(fetchLinks(contribId, 'to'))
+
+        const text = jq.html()
+        contrib.data.body = text
+        const newNote = await api.putObject(contrib, contrib.communityId, contrib._id)
+        dispatch(editNote(newNote))
+
+        if (dialogId !== undefined)
+            dispatch(closeDialog(dialogId))
+        addNotification({title: 'Saved!', type:'success', message:'Contribution created!'})
+    }
+}
+
+export const fetchLinks = (contribId, direction) => async (dispatch) => {
+    const links = await api.getLinks(contribId, direction)
+    dispatch(setLinks({contribId, direction, links}))
 }

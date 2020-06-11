@@ -6,19 +6,20 @@ const token = sessionStorage.getItem('token');
 const config = {
     headers: { Authorization: `Bearer ${token}` }
 };
+
+//Contribution
 const postContribution = (communityId, obj) => {
     return axios.post(`${apiUrl}/contributions/${communityId}`, obj, config);//, {mode: 'cors'});
 }
+
+//Community
 const getCommunity = (communityId) => {
     return axios.get(`${apiUrl}/communities/${communityId}`, config);//, {mode: 'cors'});
 }
 
-const  getScaffoldLinks = async(contextId) => {
-    return await getLinksFrom(contextId, 'uses');
-}
-
-const getLinksFrom = async (fromId, type) => {
-    let links = await axios.get(`${apiUrl}/links/from/${fromId}`, config);
+//Links
+const getLinks = async (objectId, direction, type) => {
+    let links = await axios.get(`${apiUrl}/links/${direction}/${objectId}`, config);
     links = links.data;
     if (type) {
         links = links.filter(function (each) {
@@ -28,9 +29,24 @@ const getLinksFrom = async (fromId, type) => {
     return links
 }
 
+const postLink = async (fromId, toId, type, data) => {
+    return (await axios.post(`${apiUrl}/links`, {from: fromId, to: toId, type:type, data:data}, config)).data
+}
+
+const deleteLink = async (linkId) => {
+    return (await axios.delete(`${apiUrl}/links/${linkId}`, config).data)
+}
+
+//Object
 const getObject = (objectId) => {
     return axios.get(`${apiUrl}/objects/${objectId}`, config);
 }
+
+const putObject = async (object, communityId, objectId) => {
+    return (await axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object, config)).data
+}
+
+
 
 const createAttachment = (communityId, authorId) => {
     var newobj = {
@@ -64,22 +80,8 @@ const uploadFile = (file, onProgress) => {
     })
 }
 
-const modifyObject = (object, communityId, objectId) => {
-    return axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object, config)
-}
-
-const postAttachmentLink = (attachId, contribId) => {
-    return axios.post(`${apiUrl}/links/`,
-                      {from: contribId, to: attachId, type:'attach'},
-                      config)
-}
-
-const postLink = (fromId, toId, type, data) => {
-    return axios.post(`${apiUrl}/links`, {from: fromId, to: toId, type:type, data:data}, config)
-}
-
-export default {postContribution, getCommunity, getScaffoldLinks,
-                getLinksFrom, getObject, createAttachment,
-                getAuthor, uploadFile, modifyObject, postAttachmentLink,
-                postLink
+export default {postContribution, getCommunity,
+                getLinks, getObject, createAttachment,
+                getAuthor, uploadFile, putObject,
+                postLink, deleteLink
                }

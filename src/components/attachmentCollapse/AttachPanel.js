@@ -56,8 +56,7 @@ const AttachPanel = props => {
             data.version = attachment.data.version + 1;
             attachment.data = data;
             attachment.tmpFilename = data.tmpFilename;
-            const newObjRes = await api.modifyObject(attachment, author.communityId, attachment._id)
-            const newAttachment = newObjRes.data
+            const newAttachment = await api.putObject(attachment, author.communityId, attachment._id)
 
             newAttachment.data.width = file.width;
             newAttachment.data.height = file.height;
