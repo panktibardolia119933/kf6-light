@@ -92,7 +92,10 @@ class Note extends React.Component {
         const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
         return (
             <div>
-                <div className='contrib-info'>Last modified: {formatter.format(new Date(this.props.note.modified))}</div>
+                <div className='contrib-info'>
+                    Created By: {this.props.author.firstName} {this.props.author.lastName} <br/>
+                    Last modified: {formatter.format(new Date(this.props.note.modified))}
+                </div>
                 <Tabs defaultActiveKey="write" transition={false} onSelect={this.onTabSelected}>
                     <Tab eventKey="home" title="read">
                         <div  dangerouslySetInnerHTML={{__html: this.props.note.data.body}} />
@@ -118,10 +121,12 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+    const note = state.notes[ownProps.noteId]
     return {
-        note: state.notes[ownProps.noteId],
+        note: note,
         drawing: state.notes.drawing,
-        drawTool: state.dialogs.drawTool
+        drawTool: state.dialogs.drawTool,
+        author: state.users[note.authors[0]] || 'NA'
     }
 }
 

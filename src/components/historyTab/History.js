@@ -14,14 +14,14 @@ const History = props => {
     return (
         <div>
             <h5>Edit logs:</h5>
-            <p class='mb-0'>{edit.length} edits</p>
+            <p className='mb-0'>{edit.length} edits</p>
             <ul>
                 {edit.map((record) =>
                     <li key={record._id}>{record.date}: {record.author}</li>
                 )}
             </ul>
             <h5>Read logs:</h5>
-            <p class='mb-0'>{read.length} reads</p>
+            <p className='mb-0'>{read.length} reads</p>
             <ul>
                 {read.map((record) =>
                     <li key={record._id}>{record.date}: {record.author}</li>
