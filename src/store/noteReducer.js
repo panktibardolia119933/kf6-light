@@ -222,8 +222,10 @@ export const fetchRecords = (contribId) => async (dispatch, getState) => {
         if (authors[record.authorId]){
             const author =  authors[record.authorId]
             record['author'] = `${author.firstName} ${author.lastName}`
-            record['date'] = formatter.format(new Date(record.timestamp))
+        }else{
+            record['author'] = 'NA'
         }
+        record['date'] = formatter.format(new Date(record.timestamp))
     })
     dispatch(setRecords({contribId, records}))
 }
