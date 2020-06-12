@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import History from '../historyTab/History'
+import Properties from '../propertiesTab/Properties'
 import { connect } from 'react-redux'
 import {editNote, removeDrawing, editSvgDialog,
         fetchAttachments, setWordCount, fetchRecords } from '../../store/noteReducer.js'
@@ -38,7 +39,7 @@ class Note extends React.Component {
         }
         else{
             this.props.editNote({_id: this.props.noteId, ...note})
-            if (note.data) {
+            if (note.data && note.data.body) {
                 this.wordCount(note.data.body);
             }
         }
@@ -112,7 +113,7 @@ class Note extends React.Component {
                         Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum varius duis at consectetur lorem donec? Et molestie ac, feugiat sed lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt?
                     </Tab>
                     <Tab eventKey='history' title='history'><History records={this.props.note.records}/></Tab>
-                    <Tab eventKey='properties' title='properties'></Tab>
+                    <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.onNoteChange}/></Tab>
                 </Tabs>
 
             </div>
