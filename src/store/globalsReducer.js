@@ -6,6 +6,11 @@ export const setCommunityId = createAction('SET_COMMUNITY_ID')
 export const setViewId = createAction('SET_VIEW_ID')
 export const setAuthor = createAction('SET_AUTHOR')
 export const setView = createAction('SET_VIEW')
+export const dateFormatOptions = {
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: 'numeric', second: 'numeric',
+    hour12: true
+};
 
 const initState = {
     communityId: sessionStorage.getItem('communityId'),

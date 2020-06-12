@@ -3,6 +3,7 @@ import { openDialog, openDrawDialog, closeDialog } from './dialogReducer.js'
 import { postProcess } from './kftag.service.js'
 import api from './api.js'
 import { addNotification } from './notifier.js'
+import { dateFormatOptions } from './globalsReducer.js'
 
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
@@ -15,6 +16,7 @@ export const removeAttachment = createAction('REMOVE_ATTACHMENT')
 export const setAttachments = createAction('SET_ATTACHMENTS')
 export const setWordCount = createAction('SET_WORDCOUNT')
 export const setLinks = createAction('SET_CONNECTIONS')
+export const setRecords = createAction('SET_RECORDS')
 // export const postContribution = createAction('POST_CONTRIBUTION')
 
 // let noteCounter = 0
@@ -67,8 +69,11 @@ export const noteReducer = createReducer(initState, {
         }else{
             contrib.toLinks = action.payload.links
         }
-    }
-
+    },
+    [setRecords]: (state, action) => {
+        let note = state[action.payload.contribId]
+        note.records = action.payload.records
+    },
 });
 
 const createNote = (communityId, authorId, contextMode, fromId, content) => {
@@ -135,7 +140,7 @@ export const newNote = (view, communityId, authorId) => dispatch => {
     const newN = createNote(communityId, authorId, mode);
 
     return api.postContribution(communityId, newN).then((res) => {
-        const note = {attachments: [], fromLinks:[], toLinks:[], ...res.data}
+        const note = {attachments: [], fromLinks:[], toLinks:[], records: [], ...res.data}
         const pos = {x: 100, y:100}
         api.postLink(view._id, note._id, 'contains', pos)
 
@@ -207,4 +212,18 @@ export const postContribution = (contribId, dialogId) => async (dispatch, getSta
 export const fetchLinks = (contribId, direction) => async (dispatch) => {
     const links = await api.getLinks(contribId, direction)
     dispatch(setLinks({contribId, direction, links}))
+}
+
+export const fetchRecords = (contribId) => async (dispatch, getState) => {
+    const authors = getState().users
+    const records = await api.getRecords(contribId)
+    const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
+    records.forEach((record) => {
+        if (authors[record.authorId]){
+            const author =  authors[record.authorId]
+            record['author'] = `${author.firstName} ${author.lastName}`
+            record['date'] = formatter.format(new Date(record.timestamp))
+        }
+    })
+    dispatch(setRecords({contribId, records}))
 }

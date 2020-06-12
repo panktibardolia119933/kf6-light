@@ -63,9 +63,17 @@ const createAttachment = (communityId, authorId) => {
     return axios.post(`${apiUrl}/contributions/${communityId}`, newobj, config)
 }
 
+//Author
 const getAuthor = (communityId) => {
-    console.log("Get Author")
     return axios.get(`${apiUrl}/authors/${communityId}/me`, config)
+}
+const getCommunityAuthors = async (communityId) => {
+    return (await axios.get(`${apiUrl}/communities/${communityId}/authors`, config)).data
+}
+
+//Records
+const getRecords = async (contribId) => {
+    return (await axios.get(`${apiUrl}/records/object/${contribId}`, config)).data
 }
 
 const uploadFile = (file, onProgress) => {
@@ -83,5 +91,6 @@ const uploadFile = (file, onProgress) => {
 export default {postContribution, getCommunity,
                 getLinks, getObject, createAttachment,
                 getAuthor, uploadFile, putObject,
-                postLink, deleteLink
+                postLink, deleteLink, getCommunityAuthors,
+                getRecords
                }
