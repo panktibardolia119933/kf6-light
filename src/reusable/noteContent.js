@@ -10,11 +10,7 @@ class NoteContent extends Component{
         this.state={
             noteContent : [],
         };
-
-        // this.setState({
-        //     noteContent : this.props.noteContnetList,
-        // })
-        // console.log("STATE NOTECONTENT", this.state.noteContent);
+        
         this.noteList = this.props.noteContnetList;
         
     }

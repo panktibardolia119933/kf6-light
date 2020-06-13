@@ -11,11 +11,11 @@ import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../reusable/noteContent'
 
 import './view.css';
+import Authors from '../reusable/authors.js';
 class View extends Component {
 
-    myRegistrations= [];
+    
     myViews = []; 
-    myCommunityId = '';
     show= false; 
     from = [];
     to = []; 
@@ -30,15 +30,7 @@ class View extends Component {
 
     constructor(props) {
         super(props);
-        // GET communityId AND welcomeId IN myState
-        // this.myState= this.props.location.state;
-        
-        //COMMUNITY-ID
-        // this.myCommunityId = this.myState.communityId;
-
         this.state={
-            communitites: [],
-            myCommunities: [],
             views: [],
             communityId: sessionStorage.getItem('communityId'),
             viewId: sessionStorage.getItem('viewId'),
@@ -51,13 +43,12 @@ class View extends Component {
             addView: '',
             showRiseAbove : false,
             showModel : false,
-            sFrom : [],
-            sTo : [],
             showNoteContent: false,
             noteContnetList : [],
             query:"",
             filteredData: [],
             filter:'title',
+            authors: [],
 
         };
 
@@ -77,27 +68,11 @@ class View extends Component {
     componentDidMount(){
 
         this.setState(this.props.location.state);
-        // console.log("state",this.state);
-        
-
-        //GET LIST OF ALL COMMUNITIES
-        Axios.get('https://kf6-stage.ikit.org/api/communities')
-        .then(
-            result=>{
-                this.setState({
-                    communitites: result.data
-                 })
-            }).catch(
-                error=>{
-                    console.log("GET Communities Failed");
-                    alert("GET Communities Failed");
-                }
-            );
-            
+       
             //SET HEADER WITH TOKEN BEARER
             var config = {
                 headers: { Authorization: `Bearer ${this.token}` }
-            };
+            };  
 
             //GET USER'S VIEWS
             var viewUrl= "https://kf6-stage.ikit.org/api/communities/"+this.state.communityId+"/views";
@@ -113,20 +88,6 @@ class View extends Component {
                         alert(error);
                     });  
                     
-
-            //GET USER'S REGISTERED COMMUNITIES
-            Axios.get('https://kf6-stage.ikit.org/api/users/myRegistrations', config)
-            .then(
-                result=>{
-                    this.setState({
-                        myCommunities: result.data
-                     })
-                }).catch(
-                    error=>{
-                        alert(error);
-                    }
-                );
-
 
             var viewNotesUrl= "https://kf6-stage.ikit.org/api/links/from/" + sessionStorage.getItem('viewId');
             var links=[];
@@ -182,23 +143,10 @@ class View extends Component {
                         if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
                             this.from.push(result.data[i].from);
                             this.to.push(result.data[i].to);
-                            this.hierarchyNote.push(result.data[i]);
+                            this.hierarchyNote.push(result.data[i]);   
                         }
                     
                     }
-                    
-                    // //Add into tos list
-                    // for(var j in this.to){
-                    //     for(var k in this.from){
-                    //         if (this.from[k]=== this.to[j]){
-                    //             var tempTo= [this.to[j],this.to[k]];
-                    //             var temp={"from": this.from[j],"to":tempTo};
-                    //             h.push(temp);
-                    //         }
-                    //     }
-                    // }
-                    // console.log("This.state hNotes",this.state.hNotes);
-                    // console.log("HIERARCHI",h);
                     
                     try {
                         for(var l in this.to){
@@ -222,118 +170,28 @@ class View extends Component {
                         })
                         console.log("HNOTES", this.state.hNotes);
                         
-                    }
-
-                    // try {
-                    //     this.to.forEach(toElement => {
-                    //         console.log("For");
-                    //         while(this.from.includes(toElement)){
-                    //             console.log("While");
-                    //             var toIndex = this.to.indexOf(toElement);
-                    //             var fromIndex = this.from.indexOf(toElement);
-                    //             var tempArray = [];
-                    //             tempArray.push(this.hierarchyNote[toIndex]);
-                    //             tempArray.push(this.hierarchyNote[fromIndex])
-                    //             this.hierarchyNote[toIndex] = tempArray;
-                    //             delete this.hierarchyNote[fromIndex];
-                    //             toElement = this.to[fromIndex];
-
-                    //         }
-                    //     }); 
-                    // }
-                    //  catch (error) {
-                    //     //Do nothing
-                    // }finally{
-                    //     this.setState({
-                    //         hNotes : this.hierarchyNote
-                    //     })
-                    //     console.log("HNOTES", this.state.hNotes);
-                        
-                    // }
-                    
-
-                    // if(this.arrangeFromTo()){
-                    //     var fromData=[];
-                    //     var toData = [];
-                    //     this.setState({
-                    //         sFrom: this.from,
-                    //         sTo: this.to,
-                    //     });
-
-                    //     for(var m in this.from){
-                    //         if(this.from[m]!=null){                       
-                    //             var noteUrl="https://kf6-stage.ikit.org/api/objects/"+ this.from[m];
-                                
-                    //             Axios.get(noteUrl, config)
-                    //             .then(
-                    //                 result=>{
-                    //                     fromData.push(result.data);
-                    //                 }).catch(
-                    //                     error=>{
-                    //                         // alert(error);
-                    //                 });
-                    //         }
-                            
-                    //     }
-                    //     for(var o in this.from){
-                    //         if(this.from[o]!= null){
-                    //             toData.push(this.to[o]);
-                    //         }
-                    //     }
-                    //     console.log("fromData",fromData);
-                    //     console.log("toData",toData);
-                    // }
-
-                    // AFTER ARRANGEFROM IS OVER
-                    //CALL INDIVIDUAL INFO FOR NOTES
-
-                    // for(var l in to){
-                    //     if(from.includes(to[l])){
-                    //         var index= from.findIndex(to[l]);
-                    //         var tempTo= [to[l],to[index]];
-                    //         to[l] = tempTo
-                    //         delete from[index];
-                    //     }
-                    //     if(from.includes(to[index])){
-                    //         var fromIndex = from.findIndex(to[index]);
-                    //         addTO(fromIndex, tempTo);
-                    //     }
-                    // }
-
-                    // for(var l in from){
-                    //     var tempTo;
-                    //     tempTo.push(to[l]);
-                    //     if(from.includes(to[l])){
-                    //         var fromIndex = from.findIndex(to[l]);
-                    //         addTO(fromIndex, tempTo);
-                    //     }
-                    //     addTo(fromIndex, tempTo){
-                    //         tempTo.push(to[fromIndex]);
-                    //         to[l]= tempTo;
-                    //         delete from[fromIndex];
-                    //         if(from.includes(to[fromIndex])){
-                    //             fromIndex = from.findIndex(to[fromIndex]);
-                    //             addTo(fromIndex, tempTo)
-                    //         }
-                    //     }
-                    // }
-                    
-                    
-                                        
+                    }                      
                 }).catch(
                     error=>{
                         alert(error);
                 })
 
-                
+                //GET AUTHORS
+                var authorUrl = "https://kf6-stage.ikit.org/api/communities/"+this.state.communityId+"/authors";
+                Axios.get(authorUrl, config)
+                .then(
+                    result=>{
+                        this.setState({
+                            authors : result.data,
+                        });
 
-                
-                
+                        console.log("this.state.authors",this.state.authors);
 
-            //GET AUTHOR DETAILS
-            var meAuthorUrl= "https://kf6-stage.ikit.org/api/authors/"+this.state.communityId+"/me";
-            // Axios.get  
 
+                    }).catch(
+                        error=>{
+                            alert(error);
+                        });
 
     }
 
@@ -491,21 +349,33 @@ class View extends Component {
         
     }
 
-    showContent(id){
+    showContent(event, id){
+        let isChecked = event.target.checked;
         this.setState({
             showNoteContent : true,
-        })
-        var myArray = this.noteData1;
-        for(var i in myArray){
-            if(myArray[i]._id && myArray[i]._id===id){
-                this.noteContnetNew.push(myArray[i]);
-                this.setState({
-                    noteContnetList : this.noteContnetNew,
-                })
-                console.log("DATA DATA", this.noteContnetNew);
-                
-            }
-        }        
+        });
+        
+        if (isChecked) {
+            var myArray = this.noteData1;
+            for(var i in myArray){
+                if(myArray[i]._id && myArray[i]._id===id){
+                    this.noteContnetNew.push(myArray[i]);
+                    this.setState({
+                        noteContnetList : this.noteContnetNew,
+                    })
+                    console.log("DATA DATA", this.noteContnetNew);
+                    
+                }
+            } 
+            
+        } else {
+            this.noteContnetNew.filter(obj => obj._id.includes(id)).map(filteredObj => {
+                this.noteContnetNew.pop(filteredObj)});
+            this.setState({
+                noteContnetList : this.noteContnetNew,
+            })
+        }
+               
     }
 
 
@@ -555,29 +425,38 @@ class View extends Component {
                         }
                     });
                     break;
+                
+                case "author":
+                    console.log("Author", this.state.query);
+                    var authorId =[];
+
+                    // var authorObj = this.state.authors.filter(obj=> obj.firstName.equals(this.state.query)).map(filteredObj=>{
+                    //     return filteredObj;
+                    // });
+
+                    this.state.authors.map(obj=>{
+                        if(obj.firstName.toLowerCase().includes(this.state.query.toLowerCase()) || obj.lastName.toLowerCase().includes(this.state.query.toLowerCase())){
+                            console.log("Matched", obj._id);
+                            authorId.push(obj._id);   
+                        }
+                    });
+                    authorId.forEach(element => {
+                        filteredResults = this.noteData1.filter(obj => obj.authors[0].includes(element)).map(filteredObj=>{
+                            return filteredObj; 
+                        });
+                    });
+                    
+
+                    break;
             
                 default:
                     break;
             }
         }
         
-        
-
         this.setState({
             filteredData : filteredResults,
         })
-        
-    
-        // this.setState(viewLinks => {
-        //   const filteredData = viewLinks.data.filter(element => {
-        //     return element.name.toLowerCase().includes(query.toLowerCase());
-        //   });
-    
-        //   return {
-        //     query,
-        //     filteredData
-        //   };
-        // });
       };
 
 
@@ -651,7 +530,7 @@ class View extends Component {
                         <Col md="5" sm="12" className="mrg-6-top pd-2-right v-scroll">
                         <Form className="mrg-1-bot">
                             <Row>
-                                <Col md="6">
+                                <Col md="8">
                                     <FormGroup>
                                     <Input
                                         placeholder="Search Your Note"
@@ -659,7 +538,7 @@ class View extends Component {
                                     />
                                     </FormGroup>
                                 </Col>
-                                <Col md="6">
+                                <Col md="4">
                                     <FormGroup>
                                         <Input type="select" name="filter" id="filter" onChange={this.handleFilter}>
                                             <option key="title" value="title">Search By Title</option>
@@ -679,23 +558,20 @@ class View extends Component {
                                 <Col className="mr-auto primary-bg-200 rounded mrg-1-bot">
                                     {obj._to && obj._to.title && obj._to.created ?(<>
                                         <Row className="pd-05">
-                                            <Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold">{obj._to.title}</Link>
+                                            <Col md="10" className="primary-800 font-weight-bold">{obj._to.title}</Col>
+                                            <Col md="2">
+                                            <Form className="mrg-1-min">
+                                                <FormGroup>
+                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
                                         </Row>
-                                        <Row className="primary-600 sz-075 pd-05"> Created On {obj._to.created}</Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}</Col>
+                                    </Row>
                                         </>)
                                         :
-                                        // (
-                                        //     obj.map((subObj)=>{
-                                        //         return <Row>
-                                        //             <Col>
-                                        //                 {subObj._to && subObj._to.title && subObj._to.created ?(<>
-                                        //                 <Row className="indigo"> {subObj._to.title}</Row>
-                                        //                 <Row> Created On {subObj._to.created}</Row></>):(<></>)}
-                                        //             </Col>
-                                        //         </Row>
-                                                
-                                        //     })
-                                        // )
                                         (<>
                                             {obj[0]? 
                                             (<>
@@ -705,8 +581,19 @@ class View extends Component {
                                                     {obj[0]._to && obj[0]._to.title && obj[0]._to.created ?
                                                     (<>
                                                         <Col>
-                                                            <Row className="pd-05"><Link onClick={()=>this.showContent(obj[0].to)} className="primary-800 font-weight-bold"> {obj[0]._to.title}</Link></Row>
-                                                            <Row className=" primary-600 sz-075 pd-05"> Created On {obj[0]._to.created}</Row>
+                                                            <Row className="pd-05">
+                                                                <Col md="10" className="primary-800 font-weight-bold"> {obj[0]._to.title}</Col>
+                                                                <Col md="2">
+                                                                    <Form className="mrg-1-min">
+                                                                        <FormGroup>
+                                                                            <Input type="checkbox" onChange={e => this.showContent(e, obj[0].to)}/>
+                                                                        </FormGroup>
+                                                                    </Form>
+                                                                </Col>
+                                                                </Row>
+                                                            <Row className="primary-600 sz-075 pd-05">
+                                                                <Col><Authors authorId ={obj[0]._to.authors}/>&nbsp; {obj[0]._to.created}</Col>
+                                                                </Row>
                                                         </Col>
                                                     </>)
                                                     :
@@ -718,9 +605,21 @@ class View extends Component {
                                                         <Col md="1">
                                                         </Col>
                                                         <Col>
-                                                            {subObj._from && subObj._from.created ?(<>
-                                                            <Row className="pd-05"><Link onClick={()=>this.showContent(subObj.from)} className="primary-800 font-weight-bold">{subObj._from.title}</Link></Row>
-                                                            <Row className="primary-600 sz-075 pd-05"> Created On {subObj._from.created}</Row></>):(<></>)}
+                                                            {obj[0] && obj[0]._to && obj[0]._to.title && subObj._from && subObj._from.created ?(<>
+                                                            <Row className="pd-05 border-left border-primary">
+                                                                <Col className="primary-800 font-weight-bold">{subObj._from.title}</Col>
+                                                                <Col md="2">
+                                                                    <Form className="mrg-1-min">
+                                                                        <FormGroup>
+                                                                            <Input type="checkbox" onChange={e => this.showContent(e, subObj.from)}/>
+                                                                        </FormGroup>
+                                                                    </Form>
+                                                                </Col>
+                                                                </Row>
+                                                            <Row className="primary-600 sz-075 pd-05 border-left border-primary">
+                                                                <Col><Authors authorId ={subObj._from.authors}/>&nbsp; {subObj._from.created}
+                                                                </Col>
+                                                            </Row></>):(<></>)}
                                                         </Col>
                                                     </Row>
                                                             
@@ -732,13 +631,23 @@ class View extends Component {
                                             (<></>) }
                                         </>)}                                    
                                     
-                                    {obj._from && obj._from.title && obj._to.created ? 
+                                    { obj._from && obj._from.title && obj._to.created ? 
                                         (<>
                                             <Row>
                                             <Col md="1"></Col>
                                             <Col>
-                                                <Row className="pd-05"> <Link onClick={()=>this.showContent(obj.from)} className="primary-800 font-weight-bold">{obj._from.title}</Link></Row>
-                                                <Row className="primary-600 sz-075 pd-05"> Created On {obj._from.created}</Row>
+                                                <Row className="pd-05 border-left border-primary"> 
+                                                <Col className="primary-800 font-weight-bold">{obj._from.title}</Col>
+                                                <Col md="2">
+                                                <Form className="mrg-1-min">
+                                                    <FormGroup>
+                                                        <Input type="checkbox" onChange={e => this.showContent(e, obj.from)}/>
+                                                    </FormGroup>
+                                                </Form>
+                                                </Col>
+                                                </Row>
+                                                <Row className="primary-600 sz-075 pd-05 border-left border-primary">
+                                                    <Col><Authors authorId ={obj._from.authors}/>&nbsp; {obj._from.created}</Col></Row>
                                             </Col>
                                             </Row>
                                         </>)
@@ -756,8 +665,20 @@ class View extends Component {
                                 (<>
                                 <Row key={obj._to} value={obj.to} className="mrg-05-top">
                                     <Col className="primary-bg-200 rounded mrg-1-bot">
-                                    <Row className="pd-05"><Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold"> {obj._to.title}</Link></Row>
-                                    <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                    <Row className="pd-05">
+                                        <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
+                                        <Col md="2">
+                                            <Form className="mrg-1-min">
+                                                <FormGroup>
+                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                        </Col>
+                                        </Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
+                                        </Col>    
+                                    </Row>
                                     </Col>
                                 </Row>
                                 </>)
@@ -775,8 +696,20 @@ class View extends Component {
                                 (<>
                                 <Row key={obj._to} value={obj.to} className="mrg-05-top">
                                     <Col className="primary-bg-200 rounded mrg-1-bot">
-                                    <Row className="pd-05"><Link onClick={()=>this.showContent(obj.to)} className="primary-800 font-weight-bold"> {obj._to.title}</Link></Row>
-                                    <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                    <Row className="pd-05">
+                                        <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
+                                        <Col md="2">
+                                            <Form className="mrg-1-min">
+                                                <FormGroup>
+                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
+                                        </Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
+                                        </Col>
+                                        </Row>
                                     </Col>
                                 </Row>
                                 </>)
@@ -784,8 +717,18 @@ class View extends Component {
                                     {obj._id ? (<>
                                         <Row key={obj._id} value={obj._id} className="mrg-05-top">
                                         <Col className="primary-bg-200 rounded mrg-1-bot">
-                                        <Row className="pd-05"><Link onClick={()=>this.showContent(obj._id)} className="primary-800 font-weight-bold"> {obj.title}</Link></Row>
-                                        <Row className="primary-600 sz-075 pd-05"> Created On {obj.created}</Row>
+                                        <Row className="pd-05">
+                                            <Col className="primary-800 font-weight-bold"> {obj.title}</Col>
+                                            <Col md="2">
+                                            <Form className="mrg-1-min">
+                                                <FormGroup>
+                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj._id)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
+                                            </Row>
+                                        <Row className="primary-600 sz-075 pd-05">
+                                            <Col><Authors authorId ={obj.authors}/>&nbsp; {obj.created}</Col></Row>
                                         </Col>
                                 </Row>   
                                     </>)

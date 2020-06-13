@@ -30,3 +30,7 @@
     height: 88vh !important;
     overflow-y: scroll !important;
 }
+
+.mrg-1-min{
+    margin-top: -1rem !important;
+}
