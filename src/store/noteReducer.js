@@ -17,6 +17,9 @@ export const setAttachments = createAction('SET_ATTACHMENTS')
 export const setWordCount = createAction('SET_WORDCOUNT')
 export const setLinks = createAction('SET_CONNECTIONS')
 export const setRecords = createAction('SET_RECORDS')
+export const removeContribAuthor = createAction('REMOVE_CONTRIB_AUTHOR')
+export const addContribAuthor = createAction('ADD_CONTRIB_AUTHOR')
+
 // export const postContribution = createAction('POST_CONTRIBUTION')
 
 // let noteCounter = 0
@@ -74,6 +77,14 @@ export const noteReducer = createReducer(initState, {
         let note = state[action.payload.contribId]
         note.records = action.payload.records
     },
+    [addContribAuthor]: (state, action) => {
+        let contrib = state[action.payload.contribId]
+        contrib.authors = [...contrib.authors, action.payload.author]
+    },
+    [removeContribAuthor]: (state, action) => {
+        let contrib = state[action.payload.contribId]
+        contrib.authors = contrib.authors.filter((auth) => auth !== action.payload.author)
+    }
 });
 
 const createNote = (communityId, authorId, contextMode, fromId, content) => {
@@ -229,3 +240,4 @@ export const fetchRecords = (contribId) => async (dispatch, getState) => {
     })
     dispatch(setRecords({contribId, records}))
 }
+

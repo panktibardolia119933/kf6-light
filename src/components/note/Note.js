@@ -3,6 +3,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import History from '../historyTab/History'
 import Properties from '../propertiesTab/Properties'
+import AuthorTab from '../authorsTab/AuthorTab'
 import { connect } from 'react-redux'
 import {editNote, removeDrawing, editSvgDialog,
         fetchAttachments, setWordCount, fetchRecords } from '../../store/noteReducer.js'
@@ -20,7 +21,6 @@ class Note extends React.Component {
         this.onNoteChange = this.onNoteChange.bind(this);
         this.wordCount = this.wordCount.bind(this);
         this.onTabSelected = this.onTabSelected.bind(this)
-        this.scaffoldWords = 0;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -32,8 +32,8 @@ class Note extends React.Component {
 
     onNoteChange(note) {
         if (note.scaffold){
-            const {tagCreator, initialText, scaffoldText} = note.scaffold;
-            this.addSupport(true, initialText, tagCreator, scaffoldText)
+            const {tagCreator, initialText} = note.scaffold;
+            this.addSupport(true, initialText, tagCreator)
         }else if (note.attach){
             this.editor.insertContent(note.attach)
         }
@@ -69,11 +69,10 @@ class Note extends React.Component {
         this.editor.insertContent(drawing);
     }
 
-    addSupport(selection, initialText, tagCreator, scaffoldText) {
+    addSupport(selection, initialText, tagCreator) {
         const selected = this.editor.selection.getContent();
         let text = selected.length ? selected : initialText;
         const {tag, supportContentId} = tagCreator(text);
-        this.scaffoldWords += scaffoldText.split(' ').length
         this.editor.insertContent(tag)
         //select text after insert
         if (selection) {
@@ -109,8 +108,8 @@ class Note extends React.Component {
                             onEditorSetup={this.onEditorSetup}
                         ></WriteTab>
                     </Tab>
-                    <Tab eventKey="contact" title="authors">
-                        Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum varius duis at consectetur lorem donec? Et molestie ac, feugiat sed lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt?
+                    <Tab eventKey="contact" title="author(s)">
+                        <AuthorTab contribId={this.props.noteId}/>
                     </Tab>
                     <Tab eventKey='history' title='history'><History records={this.props.note.records}/></Tab>
                     <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.onNoteChange}/></Tab>
@@ -127,7 +126,7 @@ const mapStateToProps = (state, ownProps) => {
         note: note,
         drawing: state.notes.drawing,
         drawTool: state.dialogs.drawTool,
-        author: state.users[note.authors[0]] || 'NA'
+        author: note && (state.users[note.authors[0]] || 'NA')
     }
 }
 

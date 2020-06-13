@@ -17,9 +17,8 @@ class WriteTab extends React.Component {
         this.onNewInlineAttach = this.onNewInlineAttach.bind(this);
     }
 
-    onScaffoldSelected(tagCreator, initialText, scaffoldText){
-        console.log(tagCreator, initialText)
-        this.props.onChange({scaffold: {tagCreator, initialText, scaffoldText}})
+    onScaffoldSelected(tagCreator, initialText){
+        this.props.onChange({scaffold: {tagCreator, initialText}})
     }
 
     onNewAttachmentClick(inline){

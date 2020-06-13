@@ -5,11 +5,11 @@ import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
 import Toolbar from '../reusable/toolbar';
 
-import {closeDialog, closeDrawDialog } from '../store/dialogReducer.js'
-import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
+import {newNote} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
-
+import { fetchAuthor, fetchView, fetchCommunity} from '../store/globalsReducer.js'
+import { fetchAuthors } from '../store/userReducer.js'
 import './view.css';
 class View extends Component {
 
@@ -68,6 +68,11 @@ class View extends Component {
     
     
     componentDidMount(){
+
+        this.props.fetchAuthor(this.props.communityId)
+        this.props.fetchView(this.props.viewId)
+        this.props.fetchCommunity(this.props.communityId)
+        this.props.fetchAuthors(this.props.communityId)
 
         this.setState(this.props.location.state);
         // console.log("state",this.state);
@@ -517,7 +522,7 @@ class View extends Component {
                                 <Col md="12"sm="2" xs="2">
                                     <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
                                         
-                                        <Dropdown.Item onClick={this.props.newNote}>
+                                        <Dropdown.Item onClick={()=>this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
                                                 New Note
                                         </Dropdown.Item>
 
@@ -741,11 +746,20 @@ class View extends Component {
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        dialogs: state.dialogs
+        communityId: state.globals.communityId,
+        viewId: state.globals.viewId,
+        view: state.globals.view,
+        author: state.globals.author
     }
 }
 
-const mapDispatchToProps = { closeDrawDialog, addDrawing, removeNote, closeDialog, newNote}
+const mapDispatchToProps = {
+    fetchAuthor,
+    fetchView,
+    fetchCommunity,
+    fetchAuthors,
+    newNote
+}
 
 export default connect(
     mapStateToProps,

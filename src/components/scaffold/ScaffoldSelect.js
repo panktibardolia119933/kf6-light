@@ -36,8 +36,7 @@ class ScaffoldSelect extends React.Component {
 
         const scaffold_text = support._to.title
         const tagCreator = scaffoldService.newScaffoldTag(support.to, scaffold_text, isTemplate, addhyphen);
-        this.props.onScaffoldSelected(tagCreator, initialText, scaffold_text)
-        /* this.addSupport(support, true, addhyphen, initialText, isTemplate); */
+        this.props.onScaffoldSelected(tagCreator, initialText)
     }
 
     render() {

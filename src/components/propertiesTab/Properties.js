@@ -14,7 +14,7 @@ const Properties = props => {
     return (
         <div className="m-2">
             <div>
-                <label className='mt-1'>Permission:</label>
+                <label className='mt-1 font-weight-bold'>Permission:</label>
                 <div>
                     <table className="KFPermission table table-sm">
                         <thead>
@@ -80,11 +80,11 @@ const Properties = props => {
                                 </tbody>
                     </table>
                 </div>
-                <label className="mt-1">Status:</label>
+                <label className="mt-1 font-weight-bold">Status:</label>
                 <div className="ml-2">
                     {props.contribution.status}
                 </div>
-                <label className="mt-2">Template:</label>
+                <label className="mt-2 font-weight-bold">Template:</label>
                 <form className="ml-2" action="">
                     <div className="form-check  form-check-inline">
                         <input className="form-check-input" type="checkbox" id="c-isTemplate" checked={props.contribution.data.isTemplate} onChange={isTemplateChange}/>
@@ -97,8 +97,7 @@ const Properties = props => {
             </div>
             { props.contribution.type === 'Note' &&
             (<div>
-                <label className="mt-1">Riseabove:</label>
-                <ul>
+                <label className="mt-1 mr-1 font-weight-bold">Riseabove:</label>
                     {
                     (props.contribution.type === 'Note' && props.contribution.data && props.contribution.data.riseabove && props.contribution.data.riseabove.viewId) ?
 
@@ -107,7 +106,6 @@ const Properties = props => {
 
                     <button type="submit" className="btn btn-primary btn-sm" onClick={makeRiseAbove()}>MakeRiseabove</button>
                     }
-                </ul>
             </div>)
             }
         </div>
