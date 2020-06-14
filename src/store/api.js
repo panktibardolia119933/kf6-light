@@ -1,6 +1,8 @@
 import axios from 'axios';
-const apiUrl = "http://localhost:8000/api";
-// const apiUrl = 'https://kf6-stage.ikit.org/api'
+
+// const url = 'https://kf6-stage.ikit.org'
+const url = "http://localhost:8000"
+const apiUrl = `${url}/api`;
 
 const token = sessionStorage.getItem('token');
 const config = {
@@ -91,7 +93,7 @@ const uploadFile = (file, onProgress) => {
     })
 }
 
-export default {postContribution, getCommunity,
+export default {url, apiUrl, postContribution, getCommunity,
                 getLinks, getObject, createAttachment,
                 getAuthor, uploadFile, putObject,
                 postLink, deleteLink, getCommunityAuthors,

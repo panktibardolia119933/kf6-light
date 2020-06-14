@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { Redirect, useHistory } from "react-router-dom";
 import Axios from 'axios';
 import {Container, Col, Row, Form, FormGroup, Label, Input} from 'reactstrap';
-import { Button } from 'react-bootstrap';   
+import { Button } from 'react-bootstrap';
+import api from './store/api.js'
+import { connect } from 'react-redux'
+import { setCommunityId, setViewId } from './store/globalsReducer.js'
 
 class CommunityManager extends Component {
 
@@ -24,11 +27,12 @@ class CommunityManager extends Component {
             welcomeId: '',
             userId: sessionStorage.getItem("userId"),
             token: sessionStorage.getItem("token"),
+            registrations: []
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-    }    
+    }
 
     handleChange = (e) => {
         let target = e.target;
@@ -47,7 +51,7 @@ class CommunityManager extends Component {
         console.log("FORM",this.state);
         
         //REGISTER NEW COMMUNITY TO AUTHOR
-        var registerUrl= "https://kf6-stage.ikit.org/api/authors";
+        var registerUrl= `${api.apiUrl}/authors`;
         var data= {"communityId": this.state.communityId, "registrationKey": this.state.password, "userId":this.state.userId};
         var config = {
             headers: { Authorization: `Bearer ${this.state.token}` }
@@ -67,7 +71,7 @@ class CommunityManager extends Component {
 
     componentDidMount(){
         //GET LIST OF ALL COMMUNITIES
-        Axios.get('https://kf6-stage.ikit.org/api/communities')
+        Axios.get(`${api.apiUrl}/communities`)
         .then(
             result=>{
                 this.communityData= result.data;
@@ -83,10 +87,15 @@ class CommunityManager extends Component {
             );
 
             //GET USER'S REGISTERED COMMUNITIES
-            Axios.get('https://kf6-stage.ikit.org/api/users/myRegistrations', this.config)
+        Axios.get(`${api.apiUrl}/users/myRegistrations`, this.config)
             .then(
                 result=>{
+                    console.log("registrations")
+                    console.log(result.data)
                     this.myRegistrations= result.data; 
+                    this.setState({
+                        registrations: result.data
+                    })
                 }).catch(
                     error=>{
                         alert(error);
@@ -97,6 +106,7 @@ class CommunityManager extends Component {
     enterCommunity(myCommunity){
         var id= myCommunity.obj.communityId;
         sessionStorage.setItem('communityId',myCommunity.obj.communityId)
+        this.props.setCommunityId(id)
         let myState={
             communityId:id,
             welcomeId:''
@@ -108,7 +118,7 @@ class CommunityManager extends Component {
         };
 
         //GET USER'S VIEWS
-        var viewUrl= "https://kf6-stage.ikit.org/api/communities/"+id+"/views";
+        var viewUrl= `${api.apiUrl}/communities/${id}/views`;
         console.log(viewUrl);
         
         Axios.get(viewUrl, config)
@@ -117,12 +127,14 @@ class CommunityManager extends Component {
                 // viewId= result.data[0]._id;
                 myState.welcomeId= result.data[0]._id;
                 sessionStorage.setItem('viewId',result.data[0]._id);
+                this.props.setViewId(result.data[0]._id)
+
+                this.props.history.push({pathname: "/view", state: myState});
             }).catch(
                 error=>{
                     alert(error);
                 });
         
-        this.props.history.push({pathname: "/view", state: myState});
     }
 
     render() {
@@ -132,7 +144,7 @@ class CommunityManager extends Component {
                 
                 <Container className="mrg-2-top">
                     <h6>My Knowledge Building Communities</h6>
-                    {this.myRegistrations.map((obj) => {
+                    {this.state.registrations.map((obj) => {
                         return <Row key={obj.id} value={obj.communityId} className="mrg-05-top">
                             <Col>{obj._community.title}</Col>
                             <Col><Button variant="outline-secondary" onClick={()=>this.enterCommunity({obj})}>Enter Community</Button></Col>
@@ -165,4 +177,18 @@ class CommunityManager extends Component {
     }
 }
 
-export default CommunityManager;
+const mapStateToProps = (state, ownProps) => {
+    return {
+    }
+}
+
+const mapDispatchToProps = {
+    setCommunityId,
+    setViewId,
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(CommunityManager)
+/* export default CommunityManager; */

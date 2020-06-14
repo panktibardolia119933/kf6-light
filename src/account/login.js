@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Axios from 'axios';
 import {Container, Col, Form, FormGroup, Label, Input, Button} from 'reactstrap';
+import api from '../store/api.js'
 
 class Login extends Component {
     constructor() {
@@ -28,18 +29,18 @@ class Login extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        
+
         console.log('The form was submitted with:');
         console.log(this.state);
 
         //LOGIN RETURNS TOKEN
         Axios.post(
-            'https://kf6-stage.ikit.org/auth/local',
+            `${api.url}/auth/local`,
             this.state)
             .then((response)=>{
                 console.log(response.data.token);
                 this.token= response.data.token;
-                
+
                 //SET TOKEN
                 sessionStorage.setItem('token',this.token);
                 //NAVIGATE TO COMMUNITY MANAGER

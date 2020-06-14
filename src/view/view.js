@@ -10,6 +10,7 @@ import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import { fetchAuthor, fetchView, fetchCommunity} from '../store/globalsReducer.js'
 import { fetchAuthors } from '../store/userReducer.js'
+import { setCommunityId, setViewId } from '../store/globalsReducer.js'
 import './view.css';
 class View extends Component {
 
@@ -63,12 +64,13 @@ class View extends Component {
         this.handleChangeView = this.handleChangeView.bind(this);
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
-        
-    }
-    
-    
-    componentDidMount(){
 
+    }
+
+
+    componentDidMount(){
+        /* this.props.setCommunityId(sessionStorage.getItem('communityId'))
+         * this.props.setViewId(sessionStorage.getItem('viewId')) */
         this.props.fetchAuthor(this.props.communityId)
         this.props.fetchView(this.props.viewId)
         this.props.fetchCommunity(this.props.communityId)
@@ -758,6 +760,8 @@ const mapDispatchToProps = {
     fetchView,
     fetchCommunity,
     fetchAuthors,
+    setCommunityId,
+    setViewId,
     newNote
 }
 
