@@ -8,17 +8,18 @@ class MCEditor extends React.Component {
         return (
             <div>
                 <Editor
-                    value={this.props.content}
+                    value={this.props.value}
                     apiKey="arg05azt52qbujpnf831szuswhmyhoqute0q48btk5bqigoj"
                     init={{
                         setup: (editor) => {this.props.onEditorSetup(editor)},
                         content_css: './editor.css',
-                        height: 500,
+                        height: 300,
                         menubar: false,
+                        statusbar: false,
                         plugins: [
                             'advlist autolink lists link image charmap print preview anchor',
                             'searchreplace visualblocks code fullscreen',
-                            'insertdatetime media table paste code help'
+                            'insertdatetime media table paste code wordcount help'
                         ],
                         external_plugins: {
                             'drawingTool': '/drawing-tool/plugin.min.js'

@@ -3,7 +3,7 @@ import Dialog from '../dialog/Dialog.js';
 import Note from '../note/Note.js';
 import { useSelector, useDispatch } from 'react-redux';
 import {closeDialog, closeDrawDialog, focusDialog } from '../../store/dialogReducer.js'
-import {removeNote, addDrawing} from '../../store/noteReducer.js'
+import {removeNote, addDrawing, postContribution} from '../../store/noteReducer.js'
 import DrawDialog from '../drawDialog/DrawDialog.js'
 
 const DialogHandler = props => {
@@ -18,6 +18,14 @@ const DialogHandler = props => {
         },
         [dispatch]
     )
+
+    const onDialogConfirm = useCallback(
+        (dlg) => {
+            dispatch(postContribution(dlg.noteId, dlg.id));
+            /* dispatch(closeDialog(dlg.id)); */
+        },
+        [dispatch]
+    );
 
     const onFocusDialog = useCallback(
         (dlgId) => dispatch(focusDialog(dlgId)),
@@ -47,7 +55,7 @@ const DialogHandler = props => {
                         title={elt.title}
                         style={{zIndex: elt.zIndex}}
                         onClose={()=>onDialogClose(elt)}
-                        onConfirm={()=> onDialogClose(elt)}
+                        onConfirm={()=> onDialogConfirm(elt)}
                         confirmButton={elt.confirmButton}>
 
                     <Note key={elt.noteId} noteId={elt.noteId} />
@@ -60,6 +68,7 @@ const DialogHandler = props => {
                          onConfirm={onConfirmDrawDialog}
                          noteId={dialogs.drawTool}
              /> : null}
+
         </div>
     )
 

@@ -5,12 +5,15 @@ export const closeDialog = createAction('CLOSE_DIALOG');
 export const openDrawDialog = createAction('OPEN_DRAW_DIALOG')
 export const closeDrawDialog = createAction('CLOSE_DRAW_DIALOG')
 export const focusDialog = createAction('FOCUS_DIALOG')
+export const openAttachPanel = createAction('OPEN_ATTACH_PANEL')
+export const closeAttachPanel = createAction('CLOSE_ATTACH_PANEL')
+
 let dialogCounter= 0
 const defaultZIndex = 1000
 const focusedZindex = 1100
 //Dialog content
 // dialog = {id, noteId, title, content, confirmButton, zIndex}
-const initState = { dialogs: [], drawTool: null, focused: null };
+const initState = { dialogs: [], drawTool: null, focused: null, attachPanel: {}};
 export const dialogReducer = createReducer(initState, {
     // actionCreator.toString() will automatically be called here
     [openDialog] : (state, action) => {
@@ -39,6 +42,14 @@ export const dialogReducer = createReducer(initState, {
 
     [closeDrawDialog]: (state, action) => {
         state.drawTool = null;
+    },
+
+    [openAttachPanel]: (state, action) => {
+        state.attachPanel = action.payload;
+    },
+
+    [closeAttachPanel]: (state, action) => {
+        state.attachPanel = {};
     },
 
     [focusDialog]: (state, action) => {

@@ -13,8 +13,8 @@ const Dialog = props => {
                 className={"contrib-dialog"}
                 style={{...dialog_style, ...props.style}}
                 default={{
-                    x: 100,
-                    y: 100,
+                    x: 400,
+                    y: 50,
                     width: 920,
                     height: 500,
                 }}
@@ -24,13 +24,14 @@ const Dialog = props => {
                 bounds='window'
             >
                 <Card className='dlg-card'>
-                    <Card.Header className='dlg-card-header'><span>{props.title}</span>
-                        <Button onClick={props.onClose} variant='link' size='sm' style={{float:'right'}}>x</Button>
+                    <Card.Header className='dlg-card-header py-0' style={{alignItems: 'center', display: 'flex'}}>
+                        <span>{props.title}</span>
+                        <Button onClick={props.onClose} variant='link' size='sm' style={{marginLeft:'auto'}}>x</Button>
                     </Card.Header>
                     <Card.Body className='dlg-card-body' style={{overflow: 'scroll'}}>
                         {props.children}
                     </Card.Body>
-                    <Card.Footer className="dlg-card-footer">
+                    <Card.Footer className="dlg-card-footer py-0">
                         <Button size='sm' className="dlg-confirm-button"
                             onClick={props.onConfirm}
                         >

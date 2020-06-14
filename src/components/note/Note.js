@@ -1,9 +1,15 @@
 import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
+import History from '../historyTab/History'
+import Properties from '../propertiesTab/Properties'
+import AuthorTab from '../authorsTab/AuthorTab'
 import { connect } from 'react-redux'
-import {editNote, removeDrawing, editSvgDialog} from '../../store/noteReducer.js'
+import {editNote, removeDrawing, editSvgDialog,
+        fetchAttachments, setWordCount, fetchRecords } from '../../store/noteReducer.js'
 import {openDrawDialog} from '../../store/dialogReducer.js'
+import { scaffoldWordCount } from '../../store/kftag.service.js'
+import { dateFormatOptions } from '../../store/globalsReducer.js'
 import './Note.css'
 
 class Note extends React.Component {
@@ -13,6 +19,8 @@ class Note extends React.Component {
         this.onDrawingToolOpen = this.onDrawingToolOpen.bind(this);
         this.addDrawing = this.addDrawing.bind(this);
         this.onNoteChange = this.onNoteChange.bind(this);
+        this.wordCount = this.wordCount.bind(this);
+        this.onTabSelected = this.onTabSelected.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -26,9 +34,20 @@ class Note extends React.Component {
         if (note.scaffold){
             const {tagCreator, initialText} = note.scaffold;
             this.addSupport(true, initialText, tagCreator)
-        }else{
-            this.props.editNote({id: this.props.noteId, ...note})
+        }else if (note.attach){
+            this.editor.insertContent(note.attach)
         }
+        else{
+            this.props.editNote({_id: this.props.noteId, ...note})
+            if (note.data && note.data.body) {
+                this.wordCount(note.data.body);
+            }
+        }
+    }
+
+    wordCount(text) {
+        const wordCount = this.editor.plugins.wordcount.getCount() - scaffoldWordCount(text);
+        this.props.setWordCount({contribId: this.props.noteId, wc: wordCount})
     }
 
     onEditorSetup(editor){
@@ -54,7 +73,6 @@ class Note extends React.Component {
         const selected = this.editor.selection.getContent();
         let text = selected.length ? selected : initialText;
         const {tag, supportContentId} = tagCreator(text);
-
         this.editor.insertContent(tag)
         //select text after insert
         if (selection) {
@@ -64,15 +82,25 @@ class Note extends React.Component {
         }
     }
 
+    onTabSelected(tab) {
+        if (tab === 'history'){ //Refresh records
+            this.props.fetchRecords(this.props.note._id)
+        }
+    }
+
     render() {
+        const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
         return (
             <div>
-
-                <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" transition={false}>
+                <div className='contrib-info'>
+                    Created By: {this.props.author.firstName} {this.props.author.lastName} <br/>
+                    Last modified: {formatter.format(new Date(this.props.note.modified))}
+                </div>
+                <Tabs defaultActiveKey="write" transition={false} onSelect={this.onTabSelected}>
                     <Tab eventKey="home" title="read">
-                        <div  dangerouslySetInnerHTML={{__html: this.props.note.content}} />
+                        <div  dangerouslySetInnerHTML={{__html: this.props.note.data.body}} />
                     </Tab>
-                    <Tab eventKey="profile" title="write">
+                    <Tab eventKey="write" title="write">
                         <WriteTab
                             note={this.props.note}
                             onScaffoldSelected={this.scaffoldSelected}
@@ -80,9 +108,11 @@ class Note extends React.Component {
                             onEditorSetup={this.onEditorSetup}
                         ></WriteTab>
                     </Tab>
-                    <Tab eventKey="contact" title="authors">
-                        Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum varius duis at consectetur lorem donec? Et molestie ac, feugiat sed lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt?
+                    <Tab eventKey="contact" title="author(s)">
+                        <AuthorTab contribId={this.props.noteId}/>
                     </Tab>
+                    <Tab eventKey='history' title='history'><History records={this.props.note.records}/></Tab>
+                    <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.onNoteChange}/></Tab>
                 </Tabs>
 
             </div>
@@ -91,14 +121,17 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+    const note = state.notes[ownProps.noteId]
     return {
-        note: state.notes[ownProps.noteId],
+        note: note,
         drawing: state.notes.drawing,
-        drawTool: state.dialogs.drawTool
+        drawTool: state.dialogs.drawTool,
+        author: note && (state.users[note.authors[0]] || 'NA')
     }
 }
 
-const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing, editSvgDialog}
+const mapDispatchToProps = { editNote, openDrawDialog, setWordCount,
+                             removeDrawing, editSvgDialog, fetchAttachments, fetchRecords}
 
 export default connect(
     mapStateToProps,
