@@ -1,6 +1,6 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
 import { openDialog, openDrawDialog, closeDialog } from './dialogReducer.js'
-import { postProcess } from './kftag.service.js'
+import { preProcess, postProcess } from './kftag.service.js'
 import api from './api.js'
 import { addNotification } from './notifier.js'
 import { dateFormatOptions } from './globalsReducer.js'
@@ -241,3 +241,23 @@ export const fetchRecords = (contribId) => async (dispatch, getState) => {
     dispatch(setRecords({contribId, records}))
 }
 
+export const openContribution = (contribId) => async (dispatch, getState) => {
+
+    const [contrib, fromLinks, toLinks] = await Promise.all([api.getObject(contribId),
+                                                            api.getLinks(contribId, 'from'),
+                                                            api.getLinks(contribId, 'to')])
+
+    const note = {attachments: [], fromLinks, toLinks, records: [], ...contrib.data}
+    const noteBody = preProcess(note.data.body, toLinks, fromLinks)
+    note.data.body = noteBody
+    dispatch(addNote(note))
+    dispatch(fetchAttachments(contribId))
+    dispatch(openDialog({title: 'Edit Note',
+                         confirmButton: 'edit',
+                         noteId: note._id,
+                        }))
+
+    if (note.status === 'active'){
+         api.read(note.communityId, note._id)
+    }
+}

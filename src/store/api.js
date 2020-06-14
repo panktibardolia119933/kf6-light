@@ -46,7 +46,10 @@ const putObject = async (object, communityId, objectId) => {
     return (await axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object, config)).data
 }
 
-
+//Record
+const read = (communityId, objectId) => {
+    return axios.post(`${apiUrl}/records/read/${communityId}/${objectId}`, null, config)
+}
 
 const createAttachment = (communityId, authorId) => {
     var newobj = {
@@ -92,5 +95,5 @@ export default {postContribution, getCommunity,
                 getLinks, getObject, createAttachment,
                 getAuthor, uploadFile, putObject,
                 postLink, deleteLink, getCommunityAuthors,
-                getRecords
+                getRecords, read
                }

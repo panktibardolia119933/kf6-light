@@ -8,7 +8,7 @@ class MCEditor extends React.Component {
         return (
             <div>
                 <Editor
-                    value={this.props.content}
+                    value={this.props.value}
                     apiKey="arg05azt52qbujpnf831szuswhmyhoqute0q48btk5bqigoj"
                     init={{
                         setup: (editor) => {this.props.onEditorSetup(editor)},
