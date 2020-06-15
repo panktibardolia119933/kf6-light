@@ -9,6 +9,8 @@ import {newNote, removeNote, addDrawing} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../reusable/noteContent'
+import api from '../store/api'
+import {fetchScaffolds} from '../store/scaffoldReducer.js'
 
 import './view.css';
 import Authors from '../reusable/authors.js';
@@ -49,6 +51,8 @@ class View extends Component {
             filteredData: [],
             filter:'title',
             authors: [],
+            scaffolds : [],
+            scaffoldsTitle : [],
 
         };
 
@@ -61,6 +65,7 @@ class View extends Component {
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
 
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.showContent = this.showContent.bind(this);
         
     }
     
@@ -192,6 +197,49 @@ class View extends Component {
                         error=>{
                             alert(error);
                         });
+
+
+                //GET SCAFFOLDS
+                let scaffoldIds =[];
+                let scaffolds = [];
+                let scaffoldsCopy = [];
+                let scaffoldTitles = [];
+                api.getCommunity(this.state.communityId).then(
+                    res=>{
+                        scaffoldIds = res.data.scaffolds
+                        console.log("res", scaffoldIds);
+                        
+                        scaffoldIds.forEach(id => {
+                            // CALL COMMNITY LINK / VIEW LINK  ID THEN SEARCH IN CONTENT    
+                            let url = "https://kf6-stage.ikit.org/api/links/from/" + id;
+                            
+                            Axios.get(url, config)
+                            .then(
+                                result=>{
+                                    scaffolds.push(result.data);
+                            });
+                        });
+
+                        this.setState({
+                            scaffolds : scaffolds,
+                        });
+                        
+                        // scaffoldsCopy = [...this.state.scaffolds];
+                        
+                        // scaffoldsCopy.forEach(element => {
+                        //     element.forEach(obj => {
+                        //         console.log("MY OBJ", obj);
+                                
+                        //         if( obj._to.title){
+                        //             scaffoldTitles.push(obj._to.title);
+                        //             console.log("Inside OF");
+                                    
+                        //         }                                
+                        //     });
+
+                        // });
+                                                                
+                    });
 
     }
 
@@ -357,16 +405,16 @@ class View extends Component {
         
         if (isChecked) {
             var myArray = this.noteData1;
-            for(var i in myArray){
-                if(myArray[i]._id && myArray[i]._id===id){
-                    this.noteContnetNew.push(myArray[i]);
+            myArray.map((object)=>{
+                if(object._id && object._id===id){
+                    this.noteContnetNew.push(object);
                     this.setState({
                         noteContnetList : this.noteContnetNew,
                     })
-                    console.log("DATA DATA", this.noteContnetNew);
+                    console.log("STATE DATA", this.state.noteContnetList);
                     
                 }
-            } 
+            });
             
         } else {
             this.noteContnetNew.filter(obj => obj._id.includes(id)).map(filteredObj => {
@@ -376,6 +424,41 @@ class View extends Component {
             })
         }
                
+    }
+
+    //CLOSE NOTE
+    closeNote = (id) => {
+        if (this.state.noteContnetList){
+            let noteArray = [...this.state.noteContnetList];
+        
+            if(noteArray){             
+                noteArray.filter(obj => obj._id.includes(id)).map(filteredObj => {
+                    noteArray.pop(filteredObj);
+                    this.setState({
+                        noteContnetList : [...noteArray],
+                    });
+                    // this.refs[id]
+                    console.log("Check refs",this.refs[id]);
+                    
+                });
+            }
+        }       
+        
+    }
+
+
+    filterNotes = (query) => {
+        console.log("filterNotes", query);
+        let filteredResults=[];
+        filteredResults = this.noteData1.filter(function (obj) {
+            if (obj.data && obj.data.English){                      
+                return obj.data.English.includes(query);
+            }
+        });
+        this.setState({
+            filteredData : filteredResults,
+        });
+        
     }
 
 
@@ -401,13 +484,13 @@ class View extends Component {
         this.props.closeDialog(dlg.id);
     }
 
-    handleInputChange(event){
+    handleInputChange = (event) => {
         this.setState({
             query : event.target.value,
         });
 
         var filteredResults=[];
-        if(this.state.query){
+        if(this.state.query || this.state.filter){
             switch (this.state.filter) {
                 case "title":
                     this.state.viewLinks.filter(obj => obj._to.title.includes(this.state.query)).map(filteredObj => {
@@ -416,11 +499,8 @@ class View extends Component {
                     break;
                 
                 case "content":
-                    console.log("CONTENT");
                     filteredResults = this.noteData1.filter(function (obj) {
-                        if (obj.data && obj.data.English){
-                            console.log("Print English", obj.data.English);  
-                                                  
+                        if (obj.data && obj.data.English){                      
                             return obj.data.English.includes(event.target.value);
                         }
                     });
@@ -429,10 +509,6 @@ class View extends Component {
                 case "author":
                     console.log("Author", this.state.query);
                     var authorId =[];
-
-                    // var authorObj = this.state.authors.filter(obj=> obj.firstName.equals(this.state.query)).map(filteredObj=>{
-                    //     return filteredObj;
-                    // });
 
                     this.state.authors.map(obj=>{
                         if(obj.firstName.toLowerCase().includes(this.state.query.toLowerCase()) || obj.lastName.toLowerCase().includes(this.state.query.toLowerCase())){
@@ -447,6 +523,25 @@ class View extends Component {
                     });
                     
 
+                    break;
+                case "scaffold":
+                    //GET SCAFFOLD TITLES
+                    let scaffoldTitle = [];
+                    this.state.scaffolds.map(
+                        element => {
+                            element.map(
+                                obj =>{
+                                    scaffoldTitle.push(obj._to.title);
+                                });
+                        }
+                    );
+
+                    this.setState({
+                        scaffoldsTitle : scaffoldTitle,
+                    });
+                    
+                    
+                    
                     break;
             
                 default:
@@ -560,9 +655,9 @@ class View extends Component {
                                         <Row className="pd-05">
                                             <Col md="10" className="primary-800 font-weight-bold">{obj._to.title}</Col>
                                             <Col md="2">
-                                            <Form className="mrg-1-min">
+                                            <Form className="mrg-1-min pd-2-right">
                                                 <FormGroup>
-                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
                                                 </FormGroup>
                                             </Form>
                                             </Col>
@@ -584,9 +679,9 @@ class View extends Component {
                                                             <Row className="pd-05">
                                                                 <Col md="10" className="primary-800 font-weight-bold"> {obj[0]._to.title}</Col>
                                                                 <Col md="2">
-                                                                    <Form className="mrg-1-min">
+                                                                    <Form className="mrg-1-min pd-2-right">
                                                                         <FormGroup>
-                                                                            <Input type="checkbox" onChange={e => this.showContent(e, obj[0].to)}/>
+                                                                            <Input type="checkbox" ref= {obj[0].to} onChange={e => this.showContent(e, obj[0].to)}/>
                                                                         </FormGroup>
                                                                     </Form>
                                                                 </Col>
@@ -611,7 +706,7 @@ class View extends Component {
                                                                 <Col md="2">
                                                                     <Form className="mrg-1-min">
                                                                         <FormGroup>
-                                                                            <Input type="checkbox" onChange={e => this.showContent(e, subObj.from)}/>
+                                                                            <Input className="pd-left" type="checkbox" ref= {subObj.from} onChange={e => this.showContent(e, subObj.from)}/>
                                                                         </FormGroup>
                                                                     </Form>
                                                                 </Col>
@@ -641,7 +736,7 @@ class View extends Component {
                                                 <Col md="2">
                                                 <Form className="mrg-1-min">
                                                     <FormGroup>
-                                                        <Input type="checkbox" onChange={e => this.showContent(e, obj.from)}/>
+                                                        <Input className="pd-left" type="checkbox" ref= {obj.from} onChange={e => this.showContent(e, obj.from)}/>
                                                     </FormGroup>
                                                 </Form>
                                                 </Col>
@@ -668,9 +763,9 @@ class View extends Component {
                                     <Row className="pd-05">
                                         <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
                                         <Col md="2">
-                                            <Form className="mrg-1-min">
+                                            <Form className="mrg-1-min pd-2-right">
                                                 <FormGroup>
-                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
                                                 </FormGroup>
                                             </Form>
                                         </Col>
@@ -690,6 +785,18 @@ class View extends Component {
                         </>)
                         :(<>
 
+                        <Row>
+                            {this.state.scaffoldsTitle &&  this.state.filter === "scaffold"? (
+                                <Col>
+                                    {this.state.scaffoldsTitle.map((obj, i) => {
+                                        return <Row key={i} className="scaffold-title">
+                                            <Link onClick={()=>this.filterNotes(obj)} className="white">{obj}</Link>
+                                        </Row>})}                                    
+                                </Col>
+                            ):null
+                            }
+                        </Row>
+
                         {this.state.filteredData.map((obj) => {
                             return <>
                             {obj._to && obj._to.title?    
@@ -699,9 +806,9 @@ class View extends Component {
                                     <Row className="pd-05">
                                         <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
                                         <Col md="2">
-                                            <Form className="mrg-1-min">
+                                            <Form className="mrg-1-min pd-2-right">
                                                 <FormGroup>
-                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj.to)}/>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
                                                 </FormGroup>
                                             </Form>
                                             </Col>
@@ -720,9 +827,9 @@ class View extends Component {
                                         <Row className="pd-05">
                                             <Col className="primary-800 font-weight-bold"> {obj.title}</Col>
                                             <Col md="2">
-                                            <Form className="mrg-1-min">
+                                            <Form className="mrg-1-min pd-2-right">
                                                 <FormGroup>
-                                                    <Input type="checkbox" onChange={e => this.showContent(e, obj._id)}/>
+                                                    <Input type="checkbox" ref= {obj._id} onChange={e => this.showContent(e, obj._id)}/>
                                                 </FormGroup>
                                             </Form>
                                             </Col>
@@ -746,8 +853,8 @@ class View extends Component {
                         {/* NOTE CONTENT */}
                         {this.state.showNoteContent ? 
                         (<>
-                            <Col md="5" sm="12" className="mrg-6-top pd-2 v-scroll">
-                                <NoteContent noteContnetList ={this.noteContnetNew}/>
+                            <Col md="5" sm="12" className="mrg-6-top v-scroll">
+                                <NoteContent noteContnetList = {this.state.noteContnetList} closeNote = {this.closeNote} query = {this.state.query} filter={this.state.filter}/>
                             </Col>
                         </>)
                         :null
