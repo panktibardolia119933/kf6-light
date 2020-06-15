@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import api from './api.js'
+import * as api from './api.js'
 
 export const addUser = createAction('ADD_USER')
 export const addAuthors = createAction('ADD_AUTHORS')

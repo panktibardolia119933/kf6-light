@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import api from './api.js'
+import {postLink, deleteLink} from './api.js'
 
 //Count words inside scaffold labels
 export const scaffoldWordCount = (text) => {
@@ -130,7 +130,7 @@ export const postProcess = async (text, contributionId, toConnections, fromConne
         supportStartsIds.push(supportId)
         if (!supportLinksIds.includes(supportId)) {//Is a new supportLink
             //promise to create link
-            toCreate.push(api.postLink(supportId, contributionId, 'supports').then((link) => {
+            toCreate.push(postLink(supportId, contributionId, 'supports').then((link) => {
                 //Replace id with id of new created link
                 const oldId = elem.id;
                 const newId = link._id;
@@ -142,7 +142,7 @@ export const postProcess = async (text, contributionId, toConnections, fromConne
         }
     }
     const toDeleteSupports = supportLinksIds.filter((each) => !supportStartsIds.includes(each))
-          .map((each) => api.deleteLink(each)) //Select toConnections that no longer appear in the tinymce text
+          .map((each) => deleteLink(each)) //Select toConnections that no longer appear in the tinymce text
 
 
     const referenceLinksIds = fromConnections.filter((each) => each.type === 'references').map((each) => each._id) //get only ids of fromConnections of type=references
@@ -157,7 +157,7 @@ export const postProcess = async (text, contributionId, toConnections, fromConne
         kfreferenceIds.push(referenceId)
         if (!referenceLinksIds.includes(referenceId)) {//Is a new supportLink
             //promise to create link
-            toCreate.push(api.postLink(contributionId, referenceId, 'references', data).then((link) => {
+            toCreate.push(postLink(contributionId, referenceId, 'references', data).then((link) => {
                 //Replace id with id of new created link
                 const oldId = elem.id;
                 const newId = link._id;
@@ -169,7 +169,7 @@ export const postProcess = async (text, contributionId, toConnections, fromConne
         }
     }
 
-    const toDeleteReferences = referenceLinksIds.filter((each) => !kfreferenceIds.includes(each)).map((each) => api.deleteLink(each)) //Select fromConnections that no longer appear in the tinymce text
+    const toDeleteReferences = referenceLinksIds.filter((each) => !kfreferenceIds.includes(each)).map((each) => deleteLink(each)) //Select fromConnections that no longer appear in the tinymce text
 
     await Promise.all(toDeleteSupports)
     await Promise.all(toDeleteReferences)

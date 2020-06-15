@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Redirect, Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Container, Row, Col, Modal, Nav, NavDropdown, Navbar } from 'react-bootstrap';
+import { Link } from "react-router-dom";
+import { DropdownButton, Dropdown, Button, Row, Col, Modal } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
-import Toolbar from '../reusable/toolbar';
-
+import {apiUrl} from '../store/api.js'
 import {newNote} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
@@ -25,7 +24,7 @@ class View extends Component {
     hierarchyNote =[];
     noteData1 = [];
     noteContnetNew =[];
-    
+
     //TOKEN
     token = sessionStorage.getItem('token');
 
@@ -84,7 +83,7 @@ class View extends Component {
         
 
         //GET LIST OF ALL COMMUNITIES
-        Axios.get('https://kf6-stage.ikit.org/api/communities')
+        Axios.get(`${apiUrl}/communities`)
         .then(
             result=>{
                 this.setState({
@@ -103,7 +102,7 @@ class View extends Component {
             };
 
             //GET USER'S VIEWS
-            var viewUrl= "https://kf6-stage.ikit.org/api/communities/"+this.state.communityId+"/views";
+            var viewUrl= `${apiUrl}/communities/${this.state.communityId}/views`;
             Axios.get(viewUrl, config)
             .then(
                 result=>{
@@ -118,7 +117,7 @@ class View extends Component {
                     
 
             //GET USER'S REGISTERED COMMUNITIES
-            Axios.get('https://kf6-stage.ikit.org/api/users/myRegistrations', config)
+            Axios.get(`${apiUrl}/users/myRegistrations`, config)
             .then(
                 result=>{
                     this.setState({
@@ -131,7 +130,7 @@ class View extends Component {
                 );
 
 
-            var viewNotesUrl= "https://kf6-stage.ikit.org/api/links/from/" + sessionStorage.getItem('viewId');
+            var viewNotesUrl= `${apiUrl}/links/from/${sessionStorage.getItem('viewId')}`;
             var links;
             // GET NOTES ID IN VIEW
             Axios.get(viewNotesUrl, config)
@@ -154,7 +153,7 @@ class View extends Component {
 
                     for(var i in links){
                         // console.log("Link title",links[i].to, links[i]._to.title);                        
-                        var noteUrl="https://kf6-stage.ikit.org/api/objects/"+ links[i].to;
+                        var noteUrl=`${apiUrl}/objects/${links[i].to}`;
                         
                         Axios.get(noteUrl, config)
                         .then(
@@ -176,7 +175,7 @@ class View extends Component {
 
             
             //GET SEARCH - HIRARCHICAL NOTES
-            var searchUrl = "https://kf6-stage.ikit.org/api/links/" + this.state.communityId + "/search";
+            var searchUrl = `${apiUrl}/links/${this.state.communityId}/search`;
             let query = {"query": {"type": "buildson"}};
             var h=[];
             // var from=[], to=[];
@@ -188,7 +187,7 @@ class View extends Component {
                     })
                     this.hierarchyNote = this.state.hNotes;
                     for(var i in result.data){
-                            if(result.data[i]._from.type == "Note" && result.data[i]._to.type == "Note"){
+                            if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
                                 this.from.push(result.data[i].from);
                                 this.to.push(result.data[i].to);
                         }
@@ -312,7 +311,7 @@ class View extends Component {
                 
 
             //GET AUTHOR DETAILS
-            var meAuthorUrl= "https://kf6-stage.ikit.org/api/authors/"+this.state.communityId+"/me";
+        /* var meAuthorUrl= `${apiUrl}/authors/${this.state.communityId}/me`; */
             // Axios.get  
 
 
@@ -391,7 +390,7 @@ class View extends Component {
             headers: { Authorization: `Bearer ${this.token}` }
         };        
         
-        var addViewUrl = "https://kf6-stage.ikit.org/api/contributions/"+this.state.communityId;
+        var addViewUrl = `${apiUrl}/contributions/${this.state.communityId}`;
         
         var query= {"authors":[sessionStorage.getItem("userId")],
             "communityId":this.state.communityId, 
@@ -411,10 +410,6 @@ class View extends Component {
                     
                 }
             );
-    }
-
-    logout(){
-        sessionStorage.removeItem('token');
     }
 
     newContribution(){

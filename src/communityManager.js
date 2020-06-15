@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Redirect, useHistory } from "react-router-dom";
 import Axios from 'axios';
 import {Container, Col, Row, Form, FormGroup, Label, Input} from 'reactstrap';
 import { Button } from 'react-bootstrap';
-import api from './store/api.js'
+import {apiUrl} from './store/api.js'
 import { connect } from 'react-redux'
 import { setCommunityId, setViewId } from './store/globalsReducer.js'
 
@@ -51,7 +50,7 @@ class CommunityManager extends Component {
         console.log("FORM",this.state);
         
         //REGISTER NEW COMMUNITY TO AUTHOR
-        var registerUrl= `${api.apiUrl}/authors`;
+        var registerUrl= `${apiUrl}/authors`;
         var data= {"communityId": this.state.communityId, "registrationKey": this.state.password, "userId":this.state.userId};
         var config = {
             headers: { Authorization: `Bearer ${this.state.token}` }
@@ -71,7 +70,7 @@ class CommunityManager extends Component {
 
     componentDidMount(){
         //GET LIST OF ALL COMMUNITIES
-        Axios.get(`${api.apiUrl}/communities`)
+        Axios.get(`${apiUrl}/communities`)
         .then(
             result=>{
                 this.communityData= result.data;
@@ -87,7 +86,7 @@ class CommunityManager extends Component {
             );
 
             //GET USER'S REGISTERED COMMUNITIES
-        Axios.get(`${api.apiUrl}/users/myRegistrations`, this.config)
+        Axios.get(`${apiUrl}/users/myRegistrations`, this.config)
             .then(
                 result=>{
                     console.log("registrations")
@@ -118,7 +117,7 @@ class CommunityManager extends Component {
         };
 
         //GET USER'S VIEWS
-        var viewUrl= `${api.apiUrl}/communities/${id}/views`;
+        var viewUrl= `${apiUrl}/communities/${id}/views`;
         console.log(viewUrl);
         
         Axios.get(viewUrl, config)

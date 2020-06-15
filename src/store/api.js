@@ -1,27 +1,39 @@
 import axios from 'axios';
 
-// const url = 'https://kf6-stage.ikit.org'
-const url = "http://localhost:8000"
-const apiUrl = `${url}/api`;
+export const url = 'https://kf6-stage.ikit.org'
+// export const url = "http://localhost:8000"
+export const apiUrl = `${url}/api`;
+
+
+export function setToken(token) {
+    console.log("Setting token")
+    axios.defaults.headers.common['Authorization'] =
+        `Bearer ${token}`;
+}
+
+export const removeToken = () => {
+    delete axios.defaults.headers.common.Authorization
+}
+
 
 const token = sessionStorage.getItem('token');
-const config = {
-    headers: { Authorization: `Bearer ${token}` }
-};
+if (token){
+    setToken(token)
+}
 
 //Contribution
-const postContribution = (communityId, obj) => {
-    return axios.post(`${apiUrl}/contributions/${communityId}`, obj, config);//, {mode: 'cors'});
+export const postContribution = (communityId, obj) => {
+    return axios.post(`${apiUrl}/contributions/${communityId}`, obj);//, {mode: 'cors'});
 }
 
 //Community
-const getCommunity = (communityId) => {
-    return axios.get(`${apiUrl}/communities/${communityId}`, config);//, {mode: 'cors'});
+export const getCommunity = (communityId) => {
+    return axios.get(`${apiUrl}/communities/${communityId}`);//, {mode: 'cors'});
 }
 
 //Links
-const getLinks = async (objectId, direction, type) => {
-    let links = await axios.get(`${apiUrl}/links/${direction}/${objectId}`, config);
+export const getLinks = async (objectId, direction, type) => {
+    let links = await axios.get(`${apiUrl}/links/${direction}/${objectId}`);
     links = links.data;
     if (type) {
         links = links.filter(function (each) {
@@ -31,29 +43,29 @@ const getLinks = async (objectId, direction, type) => {
     return links
 }
 
-const postLink = async (fromId, toId, type, data) => {
-    return (await axios.post(`${apiUrl}/links`, {from: fromId, to: toId, type:type, data:data}, config)).data
+export const postLink = async (fromId, toId, type, data) => {
+    return (await axios.post(`${apiUrl}/links`, {from: fromId, to: toId, type:type, data:data})).data
 }
 
-const deleteLink = async (linkId) => {
-    return (await axios.delete(`${apiUrl}/links/${linkId}`, config).data)
+export const deleteLink = async (linkId) => {
+    return (await axios.delete(`${apiUrl}/links/${linkId}`).data)
 }
 
 //Object
-const getObject = (objectId) => {
-    return axios.get(`${apiUrl}/objects/${objectId}`, config);
+export const getObject = (objectId) => {
+    return axios.get(`${apiUrl}/objects/${objectId}`);
 }
 
-const putObject = async (object, communityId, objectId) => {
-    return (await axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object, config)).data
+export const putObject = async (object, communityId, objectId) => {
+    return (await axios.put(`${apiUrl}/objects/${communityId}/${objectId}`, object)).data
 }
 
 //Record
-const read = (communityId, objectId) => {
-    return axios.post(`${apiUrl}/records/read/${communityId}/${objectId}`, null, config)
+export const read = (communityId, objectId) => {
+    return axios.post(`${apiUrl}/records/read/${communityId}/${objectId}`)
 }
 
-const createAttachment = (communityId, authorId) => {
+export const postAttachment = (communityId, authorId) => {
     var newobj = {
         communityId: communityId,
         type: 'Attachment',
@@ -65,37 +77,37 @@ const createAttachment = (communityId, authorId) => {
             version: 0
         }
     };
-    return axios.post(`${apiUrl}/contributions/${communityId}`, newobj, config)
+    return axios.post(`${apiUrl}/contributions/${communityId}`, newobj)
 }
 
 //Author
-const getAuthor = (communityId) => {
-    return axios.get(`${apiUrl}/authors/${communityId}/me`, config)
+export const getAuthor = (communityId) => {
+    return axios.get(`${apiUrl}/authors/${communityId}/me`)
 }
-const getCommunityAuthors = async (communityId) => {
-    return (await axios.get(`${apiUrl}/communities/${communityId}/authors`, config)).data
+export const getCommunityAuthors = async (communityId) => {
+    return (await axios.get(`${apiUrl}/communities/${communityId}/authors`)).data
 }
 
 //Records
-const getRecords = async (contribId) => {
-    return (await axios.get(`${apiUrl}/records/object/${contribId}`, config)).data
+export const getRecords = async (contribId) => {
+    return (await axios.get(`${apiUrl}/records/object/${contribId}`)).data
 }
 
-const uploadFile = (file, onProgress) => {
+export const uploadFile = (file, onProgress) => {
     var formData = new FormData();
     formData.append("file", file);
     return axios.post(`${apiUrl}/upload`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
-            ...config.headers
+            // ...config.headers
         },
         onUploadProgress: onProgress,
     })
 }
 
-export default {url, apiUrl, postContribution, getCommunity,
-                getLinks, getObject, createAttachment,
-                getAuthor, uploadFile, putObject,
-                postLink, deleteLink, getCommunityAuthors,
-                getRecords, read
-               }
+// export default {url, apiUrl, postContribution, getCommunity,
+//                 getLinks, getObject, createAttachment,
+//                 getAuthor, uploadFile, putObject,
+//                 postLink, deleteLink, getCommunityAuthors,
+//                 getRecords, read
+//                }

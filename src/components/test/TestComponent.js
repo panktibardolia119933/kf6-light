@@ -7,7 +7,6 @@ import { fetchAuthors } from '../../store/userReducer.js'
 
 const TestComponent= props => {
     const note = {id: 1, title:'hola', content: 'asdf', attachments: []}
-    const author = useSelector((state) => state.globals.author);
     const communityId = useSelector((state) => state.globals.communityId)
     const dispatch = useDispatch();
 

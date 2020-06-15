@@ -1,7 +1,7 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
 import { openDialog, openDrawDialog, closeDialog } from './dialogReducer.js'
 import { preProcess, postProcess } from './kftag.service.js'
-import api from './api.js'
+import * as api from './api.js'
 import { addNotification } from './notifier.js'
 import { dateFormatOptions } from './globalsReducer.js'
 

@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import api from './api.js'
+import * as api from './api.js'
 
 export const requestScaffold = createAction('REQUEST_SCAFFOLD')
 export const receiveScaffold= createAction('RECEIVE_SCAFFOLD')

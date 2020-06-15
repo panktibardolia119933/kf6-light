@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useSelector} from 'react-redux'
 import { Row, Col, Button} from 'react-bootstrap'
+import {url as serverUrl} from '../../store/api'
 import './attachArea.css'
 
 const AttachArea = props => {
@@ -72,25 +73,25 @@ const AttachArea = props => {
                                 <div className="attachment-thumbnail">
                                     {
                                         attachment.data.type.indexOf('image/') === 0 ?
-                                        <img className={attachment._id + " " + (selectedImgs.includes(attachment._id) ? 'selected' : '')} src={'http://localhost:8000' + attachment.data.url} onClick={(e) => selectedImg(attachment._id, e)} alt='attachment'/>
+                                        <img className={attachment._id + " " + (selectedImgs.includes(attachment._id) ? 'selected' : '')} src={`${serverUrl}${attachment.data.url}`} onClick={(e) => selectedImg(attachment._id, e)} alt='attachment'/>
                                         :
-                                        <a href={'http://localhost:8000' + (attachment.data.downloadUrl || attachment.data.url)} title={attachment.title} download>
-                                            <img className={attachment._id} src="http://localhost:8000/manual_assets/kf6images/03-toolbar-attachment.png"
+                                        <a href={`${serverUrl}${(attachment.data.downloadUrl || attachment.data.url)}`} title={attachment.title} download>
+                                            <img className={attachment._id} src={`${serverUrl}/manual_assets/kf6images/03-toolbar-attachment.png`}
                                                  title="{attachment.title}" alt='attachment' />
                                         </a>
                                     }
                                 </div>
                                 <div className="attachment-buttons">
                                     <p>
-                                        <a href={'http://localhost:8000' + (attachment.data.downloadUrl || attachment.data.url)}
+                                        <a href={`${serverUrl}${(attachment.data.downloadUrl || attachment.data.url)}`}
                                            title={attachment.title} download>
-                                            <img className="download-attachment" src="http://localhost:8000/manual_assets/kf6images/cloud-download-2x.png"
+                                            <img className="download-attachment" src={`${serverUrl}/manual_assets/kf6images/cloud-download-2x.png`}
                                                  alt="Download" height="15px" />
                                         </a>
                                     </p>
                                     <p>
                                         <button className="delete-attachment" onClick={deleteAttachment}>
-                                            <img src="http://localhost:8000/manual_assets/kf6images/trash.png" alt='Delete attachment' width="10px" height="15px"/>
+                                            <img src={`${serverUrl}/manual_assets/kf6images/trash.png`} alt='Delete attachment' width="10px" height="15px"/>
                                         </button>
                                     </p>
                                 </div>

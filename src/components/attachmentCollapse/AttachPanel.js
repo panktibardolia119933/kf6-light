@@ -5,7 +5,7 @@ import { fetchAttachments } from '../../store/noteReducer.js'
 import { FileDrop } from 'react-file-drop';
 import './AttachPanel.css'
 
-import api from '../../store/api.js'
+import {postAttachment, uploadFile, putObject, postLink} from '../../store/api.js'
 
 //TODO if dropping files is not supported
 const AttachPanel = props => {
@@ -47,8 +47,8 @@ const AttachPanel = props => {
 
     const createAttachment = async (file, isImage) => {
         try {
-            const attachRes = await api.createAttachment(author.communityId, author._id)
-            const uploadRes = await api.uploadFile(file, onUploadProgress)
+            const attachRes = await postAttachment(author.communityId, author._id)
+            const uploadRes = await uploadFile(file, onUploadProgress)
             const attachment = attachRes.data
             const data = uploadRes.data
             attachment.title = data.filename;
@@ -56,13 +56,13 @@ const AttachPanel = props => {
             data.version = attachment.data.version + 1;
             attachment.data = data;
             attachment.tmpFilename = data.tmpFilename;
-            const newAttachment = await api.putObject(attachment, author.communityId, attachment._id)
+            const newAttachment = await putObject(attachment, author.communityId, attachment._id)
 
             newAttachment.data.width = file.width;
             newAttachment.data.height = file.height;
 
 
-            await api.postLink(props.noteId, attachment._id, 'attach')
+            await postLink(props.noteId, attachment._id, 'attach')
             //TODO updateFromConnections
             if (props.inlineAttach){
                 const data_mce_src = 'http://localhost:8000'+newAttachment.data.url;

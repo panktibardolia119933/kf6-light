@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
-import {Container, Col, Row, Form, FormGroup, Label, Input} from 'reactstrap';
+import {Col, Form, FormGroup, Input} from 'reactstrap';
+import { removeToken } from '../store/api.js'
 import Axios from 'axios';
 
 class TopNavbar extends Component {
@@ -60,6 +61,7 @@ class TopNavbar extends Component {
 
     logout(){
         sessionStorage.removeItem('token');
+        removeToken()
         var n = sessionStorage.length;
         while(n--) {
           var key = sessionStorage.key(n);
@@ -72,7 +74,6 @@ class TopNavbar extends Component {
     handleChange(e) {
       e.persist();
       let target = e.target;
-      let name = target.name;
       let value = target.value;
 
       sessionStorage.setItem("viewId", value);

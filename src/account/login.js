@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Axios from 'axios';
 import {Container, Col, Form, FormGroup, Label, Input, Button} from 'reactstrap';
-import api from '../store/api.js'
+import {url, setToken} from '../store/api.js'
 
 class Login extends Component {
     constructor() {
@@ -35,7 +35,7 @@ class Login extends Component {
 
         //LOGIN RETURNS TOKEN
         Axios.post(
-            `${api.url}/auth/local`,
+            `${url}/auth/local`,
             this.state)
             .then((response)=>{
                 console.log(response.data.token);
@@ -43,6 +43,7 @@ class Login extends Component {
 
                 //SET TOKEN
                 sessionStorage.setItem('token',this.token);
+                setToken(this.token)
                 //NAVIGATE TO COMMUNITY MANAGER
                 this.props.history.push("/community-manager");
             })

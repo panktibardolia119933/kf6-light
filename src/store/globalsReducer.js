@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import api from './api.js'
+import {getAuthor, getObject, getCommunity} from './api.js'
 
 export const setCommunity = createAction('SET_COMMUNITY')
 export const setCommunityId = createAction('SET_COMMUNITY_ID')
@@ -43,7 +43,7 @@ export const globalsReducer = createReducer(initState, {
 
 export const fetchAuthor = (communityId) => {
     return dispatch => {
-        return api.getAuthor(communityId).then( res => {
+        return getAuthor(communityId).then( res => {
             dispatch(setAuthor(res.data));
         })
     }
@@ -51,7 +51,7 @@ export const fetchAuthor = (communityId) => {
 
 export const fetchView = (viewId) => {
     return dispatch => {
-        return api.getObject(viewId).then( res => {
+        return getObject(viewId).then( res => {
             dispatch(setView(res.data))
         })
     }
@@ -59,7 +59,7 @@ export const fetchView = (viewId) => {
 
 export const fetchCommunity = (communityId) => {
     return dispatch => {
-        return api.getCommunity(communityId).then( res => {
+        return getCommunity(communityId).then( res => {
             dispatch(setCommunity(res.data))
         })
     }
