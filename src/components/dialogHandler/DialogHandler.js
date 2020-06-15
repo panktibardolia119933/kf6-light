@@ -13,8 +13,8 @@ const DialogHandler = props => {
 
     const onDialogClose = useCallback(
         (dlg) => {
-            dispatch(removeNote(dlg.noteId));
             dispatch(closeDialog(dlg.id));
+            dispatch(removeNote(dlg.noteId));
         },
         [dispatch]
     )

@@ -4,13 +4,12 @@ import { DropdownButton, Dropdown, Button, Row, Col, Modal } from 'react-bootstr
 import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
 import {apiUrl} from '../store/api.js'
-import {newNote} from '../store/noteReducer.js'
+import {newNote, openContribution} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../reusable/noteContent'
-import { fetchAuthor, fetchView, fetchCommunity} from '../store/globalsReducer.js'
+import { fetchAuthor, fetchView, fetchCommunity, setCommunityId, setViewId} from '../store/globalsReducer.js'
 import { fetchAuthors } from '../store/userReducer.js'
-import { setCommunityId, setViewId } from '../store/globalsReducer.js'
 import './view.css';
 class View extends Component {
 
@@ -66,7 +65,6 @@ class View extends Component {
         this.handleChangeView = this.handleChangeView.bind(this);
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
-
     }
 
 
@@ -620,6 +618,8 @@ class View extends Component {
                                 <Col>
                                 <Row className="indigo"> {obj._to.title}</Row>
                                 <Row> {obj.to}</Row>
+
+                                {obj._to.type === 'Note' ? <Button onClick={() => this.props.openContribution(obj.to)}>Edit</Button> : null}
                                 <hr/>
                                 
                                 </Col>
@@ -661,6 +661,7 @@ class View extends Component {
                                     </Col>
                                 </Row>
                             })}                            
+
                             {this.state.viewLinks.map((obj) => {
                             return <Row key={obj._to.title} value={obj.to} className="mrg-05-top">
                                 <Col>
@@ -772,7 +773,8 @@ const mapDispatchToProps = {
     fetchAuthors,
     setCommunityId,
     setViewId,
-    newNote
+    newNote,
+    openContribution
 }
 
 export default connect(
