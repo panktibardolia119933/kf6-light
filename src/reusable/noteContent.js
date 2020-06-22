@@ -5,6 +5,7 @@ import {Form, FormGroup, Input, Alert} from 'reactstrap';
 import Axios from 'axios';
 
 import './NoteContent.css';
+import {apiUrl} from '../store/api.js';
 
 class NoteContent extends Component{
     noteList = [];
@@ -33,7 +34,7 @@ class NoteContent extends Component{
         };
     
        //GET USER'S VIEWS
-        var viewUrl= "https://kf6-stage.ikit.org/api/communities/"+this.state.communityId+"/views";
+        var viewUrl= `${apiUrl}/communities/${this.state.communityId}/views`;
     
         Axios.get(viewUrl, config)
         .then(
@@ -63,7 +64,7 @@ class NoteContent extends Component{
         e.preventDefault();
         console.log("State Handle Submit", this.state.addView);
 
-        let url = "https://kf6-stage.ikit.org/api/links";
+        let url = `${apiUrl}/links`;
         let config = {
             headers: { Authorization: `Bearer ${this.state.token}` }
           };
@@ -140,7 +141,7 @@ class NoteContent extends Component{
                                     <Col md="11" className="pd-1 primary-800 font-weight-bold">{obj.title }</Col>
                                     <Col md="1"><Button variant="secondary" onClick={()=>this.props.closeNote(obj._id)}>X</Button></Col>
                                 </Row>
-                                <Row><span className="pd-1" dangerouslySetInnerHTML={{ __html: obj.data.English }} /></Row>
+                                <Row><span className="pd-1" dangerouslySetInnerHTML={{ __html: obj.data.English ? (obj.data.English):(obj.data.body)}} /></Row>
                             </Col>
                         </Row>
 

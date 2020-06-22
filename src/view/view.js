@@ -61,6 +61,7 @@ class View extends Component {
             authors: [],
             scaffolds : [],
             scaffoldsTitle : [],
+            noteData: [],
 
         };
 
@@ -140,67 +141,68 @@ class View extends Component {
                 );
 
 
-            var viewNotesUrl= `${apiUrl}/links/from/${sessionStorage.getItem('viewId')}`;
-            var links;
+            let viewNotesUrl= `${apiUrl}/links/from/${sessionStorage.getItem('viewId')}`;
+            let links;
+            let noteData=[];
             // GET NOTES ID IN VIEW
             Axios.get(viewNotesUrl, config)
             .then(
                 result=>{
-                    links = result.data;
-                    // console.log("NOTES",links);
-                    for(var j in links){
-                        if(links[j]._to.type==="Note"){
-                            console.log(links[j]._to.title);
+                    // links = result.data;
+                    links = result.data.filter(obj=>(obj._to.type === "Note" && obj._to.title !== "" && obj._to.status === "active")).map(
+                        filteredObj=>{
+                            console.log("Check the type === note", filteredObj);
                             
-                        }
-                    }
-                    //NOTE LINKS
+                            let noteUrl=`${apiUrl}/objects/${filteredObj.to}`;
+                            // GET NOTEDATA
+                            Axios.get(noteUrl, config)
+                            .then(
+                                result=>{
+                                    noteData.push(result.data);
+                                }).catch(
+                                    error=>{
+                                        console.log("Failed to get data for: ",filteredObj.to);                                        
+                                });
+                            return filteredObj;
+                    });
+                    console.log("NOTES",links);
+                    console.log("DATA-NOTES for above Link",noteData);
                     this.setState({
-                        viewLinks: links,   
-                    })
-
-                    var noteData=[];
-
-                    for(var i in links){
-                        // console.log("Link title",links[i].to, links[i]._to.title);                        
-                        var noteUrl=`${apiUrl}/objects/${links[i].to}`;
-                        
-                        Axios.get(noteUrl, config)
-                        .then(
-                            result=>{
-                                noteData.push(result.data);
-                            }).catch(
-                                error=>{
-                                    // alert(error);
-                            });
-                    }
-                    console.log("NOTEDATA",noteData);
+                        viewLinks: links, 
+                        noteData : noteData,
+                    });
+                    console.log("state link and data", this.state.viewLinks, this.state.noteData);
                     this.noteData1 = noteData;
-                    
         
                 }).catch(
             error=>{
-                alert(error);
+                console.log("Failed to get Links for viewId", sessionStorage.getItem('viewId'));
             });
 
             
             //GET SEARCH - HIRARCHICAL NOTES
             var searchUrl = `${apiUrl}/links/${this.state.communityId}/search`;
             let query = {"query": {"type": "buildson"}};
-            var h=[];
-            
+            let buildOnResult = [];
             Axios.post(searchUrl, query, config)
             .then(
                 result=>{
-                    for(var i in result.data){
-                        if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
-                            this.from.push(result.data[i].from);
-                            this.to.push(result.data[i].to);
-                            this.hierarchyNote.push(result.data[i]);   
+                    buildOnResult = result.data;
+                    let filteredBuildOn = buildOnResult.filter(function (obj){
+                        if ((obj._to.type === "Note" && obj._to.status === "active") 
+                            && (obj._from.type === "Note" && obj._from.status === "active")) {
+                                console.log("This is IF filteredData", obj);
+                                return obj;
                         }
-                    
-                    }
-                    
+                    });
+
+                    console.log("filtered BuildON", filteredBuildOn);
+                    filteredBuildOn.map(obj=>{
+                        this.from.push(obj.from);
+                        this.to.push(obj.to);
+                        this.hierarchyNote.push(obj);
+                    });
+
                     try {
                         for(var l in this.to){
                             if(this.from.includes(this.to[l])){
@@ -216,7 +218,8 @@ class View extends Component {
                         }
                         
                     } catch (error) {
-                        //Do nothing
+                        console.log("Error in Hnotes", error);
+                        
                     }finally{
                         this.setState({
                             hNotes : this.hierarchyNote
@@ -226,7 +229,7 @@ class View extends Component {
                     }                      
                 }).catch(
                     error=>{
-                        alert(error);
+                        console.log("Error occured for BuildsOn", error);                        
                 })
 
             
@@ -272,48 +275,7 @@ class View extends Component {
                         scaffolds : scaffolds,
                     });                                    
                 });
-
-
-    }
-
-    // arrangeFromTo(){
-    //     for(var l in this.from){
-    //         var tempTo2=[];
-    //         tempTo2.push(this.to[l]);
-    //         console.log("YES YES");
-            
-    //         if(this.from.includes(this.to[l])){
-    //             var toL= this.to[l];
-    //             console.log("Inside 1st IF", toL);
-                
-    //             var fromIndex = this.from.indexOf(toL);
-    //             console.log("fromIndex", fromIndex);
-    //             this.addTo(fromIndex, tempTo2, l);
-    //         }
-    //         else{
-    //             console.log("MY MEHNAT 1st Else:", this.from, this.to);
-    //         }
-    //     }
-    //     return 1;
-    // }
-
-    // addTo(fromIndex, tempTo, l){
-    //     console.log("Inside addTo");
-        
-    //     tempTo.push(this.to[fromIndex]);
-    //     this.to[l]= tempTo;
-    //     console.log("2nd to[l]",this.to[l]);
-        
-    //     delete this.from[fromIndex];
-    //     if(this.from.includes(this.to[fromIndex])){
-    //         fromIndex = this.from.findIndex(this.to[fromIndex]);
-    //         this.addTo(fromIndex, tempTo)
-    //     }
-    //     else{
-    //         console.log("MY MEHNAT 2nd Else:", this.from, this.to);
-    //     }
-    //     return 0;
-    // }
+            }
 
     handleChange = (e) => {
         let target = e.target;
@@ -589,12 +551,19 @@ class View extends Component {
       };
 
 
-      handleFilter = (e) => {
+    handleFilter = (e) => {
         let value = e.target.value;
         this.setState({
             filter: value,
         });
     }
+
+    buildOn = (toId) => {
+        console.log("BuildOn NoteID", toId);
+        this.props.newNote(this.props.view, this.props.communityId, this.props.author._id) ;       
+    }
+
+
 
     render() {
 
@@ -602,7 +571,7 @@ class View extends Component {
             <>
                 <DialogHandler/>
 
-                    <div className="row container min-width">
+                    <div className="row min-width">
                         {/* LEFT NAVBAR */}
                         <Col md="1" sm="12" className="pd-6-top">
                             
@@ -675,8 +644,7 @@ class View extends Component {
                                             <option key="scaffold" value="scaffold">Search By Scaffold</option>
                                             <option key="content" value="content">Search By Content</option>
                                             <option key="author" value="author">Search By Author</option>
-                                        })
-                                    }</Input>
+                                        </Input>
                                     </FormGroup>
                                 </Col>
                             </Row>
@@ -699,6 +667,9 @@ class View extends Component {
                                         </Row>
                                     <Row className="primary-600 sz-075 pd-05">
                                         <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}</Col>
+                                        <Col md="2">
+                                            <Button onClick={()=>this.buildOn(obj.to)}>BuildOn</Button>
+                                        </Col>
                                     </Row>
                                         </>)
                                         :
@@ -723,6 +694,9 @@ class View extends Component {
                                                                 </Row>
                                                             <Row className="primary-600 sz-075 pd-05">
                                                                 <Col><Authors authorId ={obj[0]._to.authors}/>&nbsp; {obj[0]._to.created}</Col>
+                                                                <Col md="2">
+                                                                    <Button onClick={()=>this.buildOn(obj[0].to)}>BuildOn</Button>
+                                                                </Col>
                                                                 </Row>
                                                         </Col>
                                                     </>)
@@ -748,6 +722,9 @@ class View extends Component {
                                                                 </Row>
                                                             <Row className="primary-600 sz-075 pd-05 border-left border-primary">
                                                                 <Col><Authors authorId ={subObj._from.authors}/>&nbsp; {subObj._from.created}
+                                                                </Col>
+                                                                <Col md="2">
+                                                                    <Button onClick={()=>this.buildOn(subObj.from)}>BuildOn</Button>
                                                                 </Col>
                                                             </Row></>):(<></>)}
                                                         </Col>
@@ -777,7 +754,11 @@ class View extends Component {
                                                 </Col>
                                                 </Row>
                                                 <Row className="primary-600 sz-075 pd-05 border-left border-primary">
-                                                    <Col><Authors authorId ={obj._from.authors}/>&nbsp; {obj._from.created}</Col></Row>
+                                                    <Col><Authors authorId ={obj._from.authors}/>&nbsp; {obj._from.created}</Col>
+                                                    <Col md="2">
+                                                        <Button onClick={()=>this.buildOn(obj.from)}>BuildOn</Button>
+                                                    </Col>
+                                                </Row>
                                             </Col>
                                             </Row>
                                         </>)
@@ -808,6 +789,9 @@ class View extends Component {
                                     <Row className="primary-600 sz-075 pd-05">
                                         <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
                                         </Col>    
+                                        <Col md="2">
+                                            <Button onClick={()=>this.buildOn(obj.to)}>BuildOn</Button>
+                                        </Col>
                                     </Row>
                                     </Col>
                                 </Row>
@@ -851,6 +835,9 @@ class View extends Component {
                                     <Row className="primary-600 sz-075 pd-05">
                                         <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
                                         </Col>
+                                        <Col md="2">
+                                            <Button onClick={()=>this.buildOn(obj.to)}>BuildOn</Button>
+                                        </Col>
                                         </Row>
                                     </Col>
                                 </Row>
@@ -870,7 +857,11 @@ class View extends Component {
                                             </Col>
                                             </Row>
                                         <Row className="primary-600 sz-075 pd-05">
-                                            <Col><Authors authorId ={obj.authors}/>&nbsp; {obj.created}</Col></Row>
+                                            <Col><Authors authorId ={obj.authors}/>&nbsp; {obj.created}</Col>
+                                            <Col md="2">
+                                                <Button onClick={()=>this.buildOn(obj._id)}>BuildOn</Button>
+                                            </Col>
+                                        </Row>
                                         </Col>
                                 </Row>   
                                     </>)

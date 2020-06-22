@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Row, Col,} from 'react-bootstrap';
 import ReactDOM from "react-dom";
 import Axios from 'axios';
+import {apiUrl} from '../store/api.js';
 
 class Authors extends Component{
     token = sessionStorage.getItem('token');
@@ -21,7 +22,7 @@ class Authors extends Component{
         }; 
 
         //GET AUTHORS
-        var authorUrl = "https://kf6-stage.ikit.org/api/communities/"+this.state.communityId+"/authors";
+        var authorUrl = `${apiUrl}/communities/${this.state.communityId}/authors`;
         Axios.get(authorUrl, config)
         .then(
             result=>{
