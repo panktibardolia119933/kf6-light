@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import { DropdownButton, Dropdown, Button, Row, Col, Modal } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input} from 'reactstrap';
 import Axios from 'axios';
-import {apiUrl} from '../store/api.js'
+import {apiUrl} from '../store/api.js';
+import * as api from '../store/api.js';
 import {newNote, openContribution} from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../reusable/noteContent'
 import { fetchAuthor, fetchView, fetchCommunity, setCommunityId, setViewId} from '../store/globalsReducer.js'
-import { fetchAuthors } from '../store/userReducer.js'
+import { fetchAuthors } from '../store/userReducer.js';
+import Authors from '../reusable/authors.js';
 import './view.css';
 class View extends Component {
 
@@ -51,10 +53,14 @@ class View extends Component {
             addView: '',
             showRiseAbove : false,
             showModel : false,
-            sFrom : [],
-            sTo : [],
             showNoteContent: false,
             noteContnetList : [],
+            query:"",
+            filteredData: [],
+            filter:'title',
+            authors: [],
+            scaffolds : [],
+            scaffoldsTitle : [],
 
         };
 
@@ -63,8 +69,14 @@ class View extends Component {
 
         this.handleSubmitView = this.handleSubmitView.bind(this);
         this.handleChangeView = this.handleChangeView.bind(this);
+        
         this.onCloseDialog = this.onCloseDialog.bind(this);
+        
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
+
+        this.handleInputChange = this.handleInputChange.bind(this);
+        
+        this.showContent = this.showContent.bind(this);
     }
 
 
@@ -176,183 +188,132 @@ class View extends Component {
             var searchUrl = `${apiUrl}/links/${this.state.communityId}/search`;
             let query = {"query": {"type": "buildson"}};
             var h=[];
-            // var from=[], to=[];
+            
             Axios.post(searchUrl, query, config)
             .then(
                 result=>{
-                    this.setState({
-                        hNotes: result.data,
-                    })
-                    this.hierarchyNote = this.state.hNotes;
                     for(var i in result.data){
-                            if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
-                                this.from.push(result.data[i].from);
-                                this.to.push(result.data[i].to);
+                        if(result.data[i]._from.type === "Note" && result.data[i]._to.type === "Note"){
+                            this.from.push(result.data[i].from);
+                            this.to.push(result.data[i].to);
+                            this.hierarchyNote.push(result.data[i]);   
                         }
-                        
-                    }
                     
-                    //Add into tos list
-                    for(var j in this.to){
-                        for(var k in this.from){
-                            if (this.from[k]=== this.to[j]){
-                                var tempTo= [this.to[j],this.to[k]];
-                                var temp={"from": this.from[j],"to":tempTo};
-                                h.push(temp);
-                            }
-                        }
                     }
-                    console.log("This.state hNotes",this.state.hNotes);
-                    console.log("HIERARCHI",h);
                     
                     try {
                         for(var l in this.to){
                             if(this.from.includes(this.to[l])){
                                 var index= this.from.indexOf(this.to[l]);
                                 var temporaryTo = [];
-                                var pushObj = this.hierarchyNote[index];
-                                if(this.hierarchyNote[index]){temporaryTo.push(pushObj);}
+                                if(this.hierarchyNote[index]){
+                                    temporaryTo.push(this.hierarchyNote[index]);
+                                }
                                 temporaryTo.push(this.hierarchyNote[l]);
                                 this.hierarchyNote[l] = temporaryTo;
-                                delete this.hierarchyNote[index];
-                                console.log("SHOULD",this.hierarchyNote);
-                                
+                                delete this.hierarchyNote[index];                                
                             }
                         }
+                        
                     } catch (error) {
                         //Do nothing
                     }finally{
                         this.setState({
                             hNotes : this.hierarchyNote
                         })
-                        console.log("Finally Hierarcy", this.state.hNotes);
+                        console.log("HNOTES", this.state.hNotes);
                         
-                    }
-                    
-
-                    // if(this.arrangeFromTo()){
-                    //     var fromData=[];
-                    //     var toData = [];
-                    //     this.setState({
-                    //         sFrom: this.from,
-                    //         sTo: this.to,
-                    //     });
-
-                    //     for(var m in this.from){
-                    //         if(this.from[m]!=null){                       
-                    //             var noteUrl="https://kf6-stage.ikit.org/api/objects/"+ this.from[m];
-                                
-                    //             Axios.get(noteUrl, config)
-                    //             .then(
-                    //                 result=>{
-                    //                     fromData.push(result.data);
-                    //                 }).catch(
-                    //                     error=>{
-                    //                         // alert(error);
-                    //                 });
-                    //         }
-                            
-                    //     }
-                    //     for(var o in this.from){
-                    //         if(this.from[o]!= null){
-                    //             toData.push(this.to[o]);
-                    //         }
-                    //     }
-                    //     console.log("fromData",fromData);
-                    //     console.log("toData",toData);
-                    // }
-
-                    // AFTER ARRANGEFROM IS OVER
-                    //CALL INDIVIDUAL INFO FOR NOTES
-
-                    // for(var l in to){
-                    //     if(from.includes(to[l])){
-                    //         var index= from.findIndex(to[l]);
-                    //         var tempTo= [to[l],to[index]];
-                    //         to[l] = tempTo
-                    //         delete from[index];
-                    //     }
-                    //     if(from.includes(to[index])){
-                    //         var fromIndex = from.findIndex(to[index]);
-                    //         addTO(fromIndex, tempTo);
-                    //     }
-                    // }
-
-                    // for(var l in from){
-                    //     var tempTo;
-                    //     tempTo.push(to[l]);
-                    //     if(from.includes(to[l])){
-                    //         var fromIndex = from.findIndex(to[l]);
-                    //         addTO(fromIndex, tempTo);
-                    //     }
-                    //     addTo(fromIndex, tempTo){
-                    //         tempTo.push(to[fromIndex]);
-                    //         to[l]= tempTo;
-                    //         delete from[fromIndex];
-                    //         if(from.includes(to[fromIndex])){
-                    //             fromIndex = from.findIndex(to[fromIndex]);
-                    //             addTo(fromIndex, tempTo)
-                    //         }
-                    //     }
-                    // }
-                    
-                    
-                                        
+                    }                      
                 }).catch(
                     error=>{
                         alert(error);
                 })
 
-                
-
-                
-                
-
-            //GET AUTHOR DETAILS
-        /* var meAuthorUrl= `${apiUrl}/authors/${this.state.communityId}/me`; */
-            // Axios.get  
-
-
-    }
-
-    arrangeFromTo(){
-        for(var l in this.from){
-            var tempTo2=[];
-            tempTo2.push(this.to[l]);
-            console.log("YES YES");
             
-            if(this.from.includes(this.to[l])){
-                var toL= this.to[l];
-                console.log("Inside 1st IF", toL);
-                
-                var fromIndex = this.from.indexOf(toL);
-                console.log("fromIndex", fromIndex);
-                this.addTo(fromIndex, tempTo2, l);
-            }
-            else{
-                console.log("MY MEHNAT 1st Else:", this.from, this.to);
-            }
-        }
-        return 1;
+            //GET AUTHORS
+            var authorUrl = `${apiUrl}/communities/${this.state.communityId}/authors`;
+            Axios.get(authorUrl, config)
+            .then(
+                result=>{
+                    this.setState({
+                        authors : result.data,
+                    });
+
+                    console.log("this.state.authors",this.state.authors);
+
+
+                }).catch(
+                    error=>{
+                        alert(error);
+                    });
+
+            //GET SCAFFOLDS
+            let scaffoldIds =[];
+            let scaffolds = [];
+            let scaffoldsCopy = [];
+            let scaffoldTitles = [];
+            api.getCommunity(this.state.communityId).then(
+                res=>{
+                    scaffoldIds = res.data.scaffolds
+                    console.log("res", scaffoldIds);
+                    
+                    scaffoldIds.forEach(id => {
+                        // CALL COMMNITY LINK / VIEW LINK  ID THEN SEARCH IN CONTENT  
+                        let url = `${apiUrl}/links/from/` + id ;
+                        
+                        Axios.get(url, config)
+                        .then(
+                            result=>{
+                                scaffolds.push(result.data);
+                        });
+                    });
+
+                    this.setState({
+                        scaffolds : scaffolds,
+                    });                                    
+                });
+
+
     }
 
-    addTo(fromIndex, tempTo, l){
-        console.log("Inside addTo");
+    // arrangeFromTo(){
+    //     for(var l in this.from){
+    //         var tempTo2=[];
+    //         tempTo2.push(this.to[l]);
+    //         console.log("YES YES");
+            
+    //         if(this.from.includes(this.to[l])){
+    //             var toL= this.to[l];
+    //             console.log("Inside 1st IF", toL);
+                
+    //             var fromIndex = this.from.indexOf(toL);
+    //             console.log("fromIndex", fromIndex);
+    //             this.addTo(fromIndex, tempTo2, l);
+    //         }
+    //         else{
+    //             console.log("MY MEHNAT 1st Else:", this.from, this.to);
+    //         }
+    //     }
+    //     return 1;
+    // }
+
+    // addTo(fromIndex, tempTo, l){
+    //     console.log("Inside addTo");
         
-        tempTo.push(this.to[fromIndex]);
-        this.to[l]= tempTo;
-        console.log("2nd to[l]",this.to[l]);
+    //     tempTo.push(this.to[fromIndex]);
+    //     this.to[l]= tempTo;
+    //     console.log("2nd to[l]",this.to[l]);
         
-        delete this.from[fromIndex];
-        if(this.from.includes(this.to[fromIndex])){
-            fromIndex = this.from.findIndex(this.to[fromIndex]);
-            this.addTo(fromIndex, tempTo)
-        }
-        else{
-            console.log("MY MEHNAT 2nd Else:", this.from, this.to);
-        }
-        return 0;
-    }
+    //     delete this.from[fromIndex];
+    //     if(this.from.includes(this.to[fromIndex])){
+    //         fromIndex = this.from.findIndex(this.to[fromIndex]);
+    //         this.addTo(fromIndex, tempTo)
+    //     }
+    //     else{
+    //         console.log("MY MEHNAT 2nd Else:", this.from, this.to);
+    //     }
+    //     return 0;
+    // }
 
     handleChange = (e) => {
         let target = e.target;
@@ -410,6 +371,10 @@ class View extends Component {
             );
     }
 
+    logout(){
+        sessionStorage.removeItem('token');
+    }
+
     newContribution(){
         console.log("New Contribution onclick works");
         this.setState({
@@ -436,7 +401,6 @@ class View extends Component {
             showRiseAbove : false,
             showNote : false, 
         })
-        // https://kf6-stage.ikit.org/api/contributions/56947546535c7c0709beee5c        
     }
 
     newRiseAbove(){
@@ -465,21 +429,68 @@ class View extends Component {
         
     }
 
-    showContent(id){
+    showContent(event, id){
+        let isChecked = event.target.checked;
         this.setState({
             showNoteContent : true,
-        })
-        var myArray = this.noteData1;
-        for(var i in myArray){
-            if(myArray[i]._id && myArray[i]._id===id){
-                this.noteContnetNew.push(myArray[i]);
-                this.setState({
-                    noteContnetList : this.noteContnetNew,
-                })
-                console.log("DATA DATA", this.noteContnetNew);
-                
+        });
+        
+        if (isChecked) {
+            var myArray = this.noteData1;
+            myArray.map((object)=>{
+                if(object._id && object._id===id){
+                    this.noteContnetNew.push(object);
+                    this.setState({
+                        noteContnetList : this.noteContnetNew,
+                    })
+                    console.log("STATE DATA", this.state.noteContnetList);
+                    
+                }
+            });
+            
+        } else {
+            this.noteContnetNew.filter(obj => obj._id.includes(id)).map(filteredObj => {
+                this.noteContnetNew.pop(filteredObj)});
+            this.setState({
+                noteContnetList : this.noteContnetNew,
+            })
+        }
+               
+    }
+
+    //CLOSE NOTE
+    closeNote = (id) => {
+        if (this.state.noteContnetList){
+            let noteArray = [...this.state.noteContnetList];
+        
+            if(noteArray){             
+                noteArray.filter(obj => obj._id.includes(id)).map(filteredObj => {
+                    noteArray.pop(filteredObj);
+                    this.setState({
+                        noteContnetList : [...noteArray],
+                    });
+                    // this.refs[id]
+                    console.log("Check refs",this.refs[id]);
+                    
+                });
             }
-        }        
+        }       
+        
+    }
+
+
+    filterNotes = (query) => {
+        console.log("filterNotes", query);
+        let filteredResults=[];
+        filteredResults = this.noteData1.filter(function (obj) {
+            if (obj.data && obj.data.English){                      
+                return obj.data.English.includes(query);
+            }
+        });
+        this.setState({
+            filteredData : filteredResults,
+        });
+        
     }
 
 
@@ -503,6 +514,86 @@ class View extends Component {
     onCloseDialog(dlg){
         this.props.removeNote(dlg.noteId);
         this.props.closeDialog(dlg.id);
+    }
+
+    handleInputChange = (event) => {
+        this.setState({
+            query : event.target.value,
+        });
+
+        var filteredResults=[];
+        if(this.state.query || this.state.filter){
+            switch (this.state.filter) {
+                case "title":
+                    this.state.viewLinks.filter(obj => obj._to.title.includes(this.state.query)).map(filteredObj => {
+                        filteredResults.push(filteredObj);
+                    })
+                    break;
+                
+                case "content":
+                    filteredResults = this.noteData1.filter(function (obj) {
+                        if (obj.data && obj.data.English){                      
+                            return obj.data.English.includes(event.target.value);
+                        }
+                    });
+                    break;
+                
+                case "author":
+                    console.log("Author", this.state.query);
+                    console.log("State authors", this.state.authors);
+                    var authorId =[];
+
+                    this.state.authors.map(obj=>{
+                        if(obj.firstName.toLowerCase().includes(this.state.query.toLowerCase()) || obj.lastName.toLowerCase().includes(this.state.query.toLowerCase())){
+                            console.log("Matched", obj._id);
+                            authorId.push(obj._id);   
+                        }
+                    });
+                    
+                    authorId.forEach(element => {
+                        filteredResults = this.noteData1.filter(obj => obj.authors.includes(element)).map(filteredObj=>{
+                            return filteredObj; 
+                        });
+                    });
+                    
+
+                    break;
+                case "scaffold":
+                    //GET SCAFFOLD TITLES
+                    let scaffoldTitle = [];
+                    this.state.scaffolds.map(
+                        element => {
+                            element.map(
+                                obj =>{
+                                    scaffoldTitle.push(obj._to.title);
+                                });
+                        }
+                    );
+
+                    this.setState({
+                        scaffoldsTitle : scaffoldTitle,
+                    });
+                    
+                    
+                    
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+        
+        this.setState({
+            filteredData : filteredResults,
+        })
+      };
+
+
+      handleFilter = (e) => {
+        let value = e.target.value;
+        this.setState({
+            filter: value,
+        });
     }
 
     render() {
@@ -566,47 +657,132 @@ class View extends Component {
                  
                         
                         {/* NOTES */}
-                        <Col md="6" sm="12" className="mrg-6-top pd-2 border border-secondary primary-bg-200">                     
-                            {this.state.hNotes.map((obj) => {
-                            return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
-                                <Col className="mr-auto">
+                        <Col md="5" sm="12" className="mrg-6-top pd-2-right v-scroll">
+                        <Form className="mrg-1-bot">
+                            <Row>
+                                <Col md="8">
+                                    <FormGroup>
+                                    <Input
+                                        placeholder="Search Your Note"
+                                        onChange={this.handleInputChange}
+                                    />
+                                    </FormGroup>
+                                </Col>
+                                <Col md="4">
+                                    <FormGroup>
+                                        <Input type="select" name="filter" id="filter" onChange={this.handleFilter}>
+                                            <option key="title" value="title">Search By Title</option>
+                                            <option key="scaffold" value="scaffold">Search By Scaffold</option>
+                                            <option key="content" value="content">Search By Content</option>
+                                            <option key="author" value="author">Search By Author</option>
+                                        })
+                                    }</Input>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                        </Form> 
+                        {this.state.query === ""? 
+                        (<>
+                            {this.state.hNotes.map((obj, i) => {
+                            return <Row key={i} className="mrg-05-top">
+                                <Col className="mr-auto primary-bg-200 rounded mrg-1-bot">
                                     {obj._to && obj._to.title && obj._to.created ?(<>
-                                        <Row className="indigo"> <Link onClick={()=>this.showContent(obj.to)}>{obj._to.title}</Link>
+                                        <Row className="pd-05">
+                                            <Col md="10" className="primary-800 font-weight-bold">{obj._to.title}</Col>
+                                            <Col md="2">
+                                            <Form className="mrg-1-min pd-2-right">
+                                                <FormGroup>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
                                         </Row>
-                                        <Row> Created On {obj._to.created}</Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}</Col>
+                                    </Row>
                                         </>)
                                         :
-                                        // (
-                                        //     obj.map((subObj)=>{
-                                        //         return <Row>
-                                        //             <Col>
-                                        //                 {subObj._to && subObj._to.title && subObj._to.created ?(<>
-                                        //                 <Row className="indigo"> {subObj._to.title}</Row>
-                                        //                 <Row> Created On {subObj._to.created}</Row></>):(<></>)}
-                                        //             </Col>
-                                        //         </Row>
-                                                
-                                        //     })
-                                        // )
                                         (<>
                                             {obj[0]? 
-                                            (
-                                                obj.map((subObj)=>{
-                                                    return <Row>
+                                            (<>
+                                                <Row className="">
+                                                <Col>
+                                                    <Row>
+                                                    {obj[0]._to && obj[0]._to.title && obj[0]._to.created ?
+                                                    (<>
                                                         <Col>
-                                                            {subObj._to && subObj._to.title && subObj._to.created ?(<>
-                                                            <Row className="indigo sz-3"> {subObj._to.title}</Row>
-                                                            <Row> Created On {subObj._to.created}</Row></>):(<></>)}
+                                                            <Row className="pd-05">
+                                                                <Col md="10" className="primary-800 font-weight-bold"> {obj[0]._to.title}</Col>
+                                                                <Col md="2">
+                                                                    <Form className="mrg-1-min pd-2-right">
+                                                                        <FormGroup>
+                                                                            <Input type="checkbox" ref= {obj[0].to} onChange={e => this.showContent(e, obj[0].to)}/>
+                                                                        </FormGroup>
+                                                                    </Form>
+                                                                </Col>
+                                                                </Row>
+                                                            <Row className="primary-600 sz-075 pd-05">
+                                                                <Col><Authors authorId ={obj[0]._to.authors}/>&nbsp; {obj[0]._to.created}</Col>
+                                                                </Row>
+                                                        </Col>
+                                                    </>)
+                                                    :
+                                                    null}
+                                                    </Row>
+                                                
+                                                {obj.map((subObj,j)=>{
+                                                    return <Row key={j}>
+                                                        <Col md="1">
+                                                        </Col>
+                                                        <Col>
+                                                            {obj[0] && obj[0]._to && obj[0]._to.title && subObj._from && subObj._from.created ?(<>
+                                                            <Row className="pd-05 border-left border-primary">
+                                                                <Col className="primary-800 font-weight-bold">{subObj._from.title}</Col>
+                                                                <Col md="2">
+                                                                    <Form className="mrg-1-min">
+                                                                        <FormGroup>
+                                                                            <Input className="pd-left" type="checkbox" ref= {subObj.from} onChange={e => this.showContent(e, subObj.from)}/>
+                                                                        </FormGroup>
+                                                                    </Form>
+                                                                </Col>
+                                                                </Row>
+                                                            <Row className="primary-600 sz-075 pd-05 border-left border-primary">
+                                                                <Col><Authors authorId ={subObj._from.authors}/>&nbsp; {subObj._from.created}
+                                                                </Col>
+                                                            </Row></>):(<></>)}
                                                         </Col>
                                                     </Row>
                                                             
-                                                })
-                                            )
+                                                })}
+                                                </Col>
+                                                </Row>
+                                            </>)
                                             :
                                             (<></>) }
                                         </>)}                                    
                                     
-                                    {obj._from && obj._from.title && obj._to.created ? (<><Row className="pd-2-left blue"> {obj._from.title}</Row><Row className="pd-2-left"> Created On {obj._from.created}</Row></>):(<></>)}                                     
+                                    { obj._from && obj._from.title && obj._to.created ? 
+                                        (<>
+                                            <Row>
+                                            <Col md="1"></Col>
+                                            <Col>
+                                                <Row className="pd-05 border-left border-primary"> 
+                                                <Col className="primary-800 font-weight-bold">{obj._from.title}</Col>
+                                                <Col md="2">
+                                                <Form className="mrg-1-min">
+                                                    <FormGroup>
+                                                        <Input className="pd-left" type="checkbox" ref= {obj.from} onChange={e => this.showContent(e, obj.from)}/>
+                                                    </FormGroup>
+                                                </Form>
+                                                </Col>
+                                                </Row>
+                                                <Row className="primary-600 sz-075 pd-05 border-left border-primary">
+                                                    <Col><Authors authorId ={obj._from.authors}/>&nbsp; {obj._from.created}</Col></Row>
+                                            </Col>
+                                            </Row>
+                                        </>)
+                                        :(<>
+                                        </>)}                                     
                                     
                                 </Col>
                             </Row>
@@ -614,24 +790,106 @@ class View extends Component {
                             
                             )}                            
                         {this.state.viewLinks.map((obj) => {
-                            return <Row key={obj._to} value={obj.to} className="mrg-05-top border rounded">
-                                <Col>
-                                <Row className="indigo"> {obj._to.title}</Row>
-                                <Row> {obj.to}</Row>
-
-                                {obj._to.type === 'Note' ? <Button onClick={() => this.props.openContribution(obj.to)}>Edit</Button> : null}
-                                <hr/>
-                                
-                                </Col>
-                            </Row>
+                            return <>
+                            {obj && obj._to.title?    
+                                (<>
+                                <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                    <Col className="primary-bg-200 rounded mrg-1-bot">
+                                    <Row className="pd-05">
+                                        <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
+                                        <Col md="2">
+                                            <Form className="mrg-1-min pd-2-right">
+                                                <FormGroup>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                        </Col>
+                                        </Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
+                                        </Col>    
+                                    </Row>
+                                    </Col>
+                                </Row>
+                                </>)
+                                :(<></>)
+                            }
+                            
+                            </>
                             })}
+                        </>)
+                        :(<>
+
+                        <Row>
+                            {this.state.scaffoldsTitle &&  this.state.filter === "scaffold"? (
+                                <Col>
+                                    {this.state.scaffoldsTitle.map((obj, i) => {
+                                        return <Row key={i} className="scaffold-title">
+                                            <Link onClick={()=>this.filterNotes(obj)} className="white">{obj}</Link>
+                                        </Row>})}                                    
+                                </Col>
+                            ):null
+                            }
+                        </Row>
+
+                        {this.state.filteredData.map((obj) => {
+                            return <>
+                            {obj._to && obj._to.title?    
+                                (<>
+                                <Row key={obj._to} value={obj.to} className="mrg-05-top">
+                                    <Col className="primary-bg-200 rounded mrg-1-bot">
+                                    <Row className="pd-05">
+                                        <Col className="primary-800 font-weight-bold"> {obj._to.title}</Col>
+                                        <Col md="2">
+                                            <Form className="mrg-1-min pd-2-right">
+                                                <FormGroup>
+                                                    <Input type="checkbox" ref= {obj.to} onChange={e => this.showContent(e, obj.to)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
+                                        </Row>
+                                    <Row className="primary-600 sz-075 pd-05">
+                                        <Col><Authors authorId ={obj._to.authors}/>&nbsp; {obj._to.created}
+                                        </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                                </>)
+                                :(<>
+                                    {obj._id ? (<>
+                                        <Row key={obj._id} value={obj._id} className="mrg-05-top">
+                                        <Col className="primary-bg-200 rounded mrg-1-bot">
+                                        <Row className="pd-05">
+                                            <Col className="primary-800 font-weight-bold"> {obj.title}</Col>
+                                            <Col md="2">
+                                            <Form className="mrg-1-min pd-2-right">
+                                                <FormGroup>
+                                                    <Input type="checkbox" ref= {obj._id} onChange={e => this.showContent(e, obj._id)}/>
+                                                </FormGroup>
+                                            </Form>
+                                            </Col>
+                                            </Row>
+                                        <Row className="primary-600 sz-075 pd-05">
+                                            <Col><Authors authorId ={obj.authors}/>&nbsp; {obj.created}</Col></Row>
+                                        </Col>
+                                </Row>   
+                                    </>)
+                                :(<></>)}
+                                </>)
+                            }
+                            
+                            </>
+                            })}     
+
+                        </>)}                    
+                            
                         </Col>
                         
                         {/* NOTE CONTENT */}
                         {this.state.showNoteContent ? 
                         (<>
-                            <Col md="5" sm="12" className="mrg-6-top pd-2">
-                                <NoteContent noteContnetList ={this.noteContnetNew}/>
+                            <Col md="5" sm="12" className="mrg-6-top v-scroll">
+                                <NoteContent noteContnetList = {this.state.noteContnetList} closeNote = {this.closeNote} query = {this.state.query} filter={this.state.filter}/>
                             </Col>
                         </>)
                         :null
