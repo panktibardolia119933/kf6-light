@@ -13,6 +13,8 @@ import { fetchAuthor, fetchView, fetchCommunity, setCommunityId, setViewId} from
 import { fetchAuthors } from '../store/userReducer.js';
 import Authors from '../reusable/authors.js';
 import './view.css';
+const _ = require('lodash');
+
 class View extends Component {
 
     myRegistrations= [];
@@ -151,7 +153,6 @@ class View extends Component {
                     // links = result.data;
                     links = result.data.filter(obj=>(obj._to.type === "Note" && obj._to.title !== "" && obj._to.status === "active")).map(
                         filteredObj=>{
-                            console.log("Check the type === note", filteredObj);
                             
                             let noteUrl=`${apiUrl}/objects/${filteredObj.to}`;
                             // GET NOTEDATA
@@ -165,10 +166,13 @@ class View extends Component {
                                 });
                             return filteredObj;
                     });
-                    console.log("NOTES",links);
-                    console.log("DATA-NOTES for above Link",noteData);
+
+                    const sortedLinks = _.sortBy(links, function(obj) { 
+                        return obj._to.modified;
+                    }).reverse();
+
                     this.setState({
-                        viewLinks: links, 
+                        viewLinks: sortedLinks, 
                         noteData : noteData,
                     });
                     console.log("state link and data", this.state.viewLinks, this.state.noteData);
@@ -187,16 +191,14 @@ class View extends Component {
             Axios.post(searchUrl, query, config)
             .then(
                 result=>{
-                    buildOnResult = result.data;
+                    buildOnResult = result.data.reverse();
                     let filteredBuildOn = buildOnResult.filter(function (obj){
                         if ((obj._to.type === "Note" && obj._to.status === "active") 
                             && (obj._from.type === "Note" && obj._from.status === "active")) {
-                                console.log("This is IF filteredData", obj);
                                 return obj;
                         }
                     });
 
-                    console.log("filtered BuildON", filteredBuildOn);
                     filteredBuildOn.map(obj=>{
                         this.from.push(obj.from);
                         this.to.push(obj.to);
@@ -483,7 +485,7 @@ class View extends Component {
             query : event.target.value,
         });
 
-        var filteredResults=[];
+        let filteredResults=[];
         if(this.state.query || this.state.filter){
             switch (this.state.filter) {
                 case "title":
@@ -497,7 +499,11 @@ class View extends Component {
                         if (obj.data && obj.data.English){                      
                             return obj.data.English.includes(event.target.value);
                         }
+                        else if(obj.data && obj.data.body){
+                            return obj.data.body.includes(event.target.value);
+                        }
                     });
+                    
                     break;
                 
                 case "author":
@@ -558,8 +564,8 @@ class View extends Component {
         });
     }
 
-    buildOn = (toId) => {
-        console.log("BuildOn NoteID", toId);
+    buildOn = (buildOn) => {
+        sessionStorage.setItem("buildOn", buildOn);
         this.props.newNote(this.props.view, this.props.communityId, this.props.author._id) ;       
     }
 

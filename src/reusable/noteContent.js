@@ -132,7 +132,13 @@ class NoteContent extends Component{
                         if (index >= 0) { 
                             obj.data.English = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+this.props.query.length) + "</span>" + innerHTML.substring(index + this.props.query.length);
                         }
-                    }                   
+                    }else if(this.props.query && obj.data.body){
+                        let innerHTML = obj.data.body;
+                        let index = innerHTML.indexOf(this.props.query);
+                        if (index >= 0) { 
+                            obj.data.body = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+this.props.query.length) + "</span>" + innerHTML.substring(index + this.props.query.length);
+                        }   
+                    }              
 
                     return<>
                         <Row className="min-height-2 mrg-05 border rounded mrg-1-bot pd-1" key={i}>

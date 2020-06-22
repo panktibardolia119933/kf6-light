@@ -148,13 +148,26 @@ const createNote = (communityId, authorId, contextMode, fromId, content) => {
 
 export const newNote = (view, communityId, authorId) => dispatch => {
     const mode = {permission: view.permission, group: view.group, _groupMembers: view._groupMembers }
-    const newN = createNote(communityId, authorId, mode);
-
-    return api.postContribution(communityId, newN).then((res) => {
+    const newN = sessionStorage.getItem("buildOn") === null ? createNote(communityId, authorId, mode) : // IF IT'S A BUILDON, THEN CREATE BUILDON LINK
+    {
+            "authors" : authorId,
+            "buildson" : sessionStorage.getItem("buildOn"),
+            "communityId" : communityId,
+            data : {
+                "body" : "",
+            },
+            "permission" : view.permission,
+            "status": "unsaved",
+            "title": "",
+            "type": "Note",
+            "_groupMembers": [],
+    };
+    if(newN){sessionStorage.removeItem("buildOn")};
+    return api.postContribution(communityId, newN).then((res) => {        
         const note = {attachments: [], fromLinks:[], toLinks:[], records: [], ...res.data}
         const pos = {x: 100, y:100}
         api.postLink(view._id, note._id, 'contains', pos)
-
+        
         //TODO saveContainsLinktoITM x2
 
         dispatch(addNote(note))
